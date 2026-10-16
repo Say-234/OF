@@ -10,6 +10,11 @@ from optifisc.domaine.erreurs import IAIndisponible
 
 URL = "https://openrouter.ai/api/v1/chat/completions"
 DELAI_SECONDES = 60
+SUFFIXE_GRATUIT = ":free"      # consigne du projet : UNIQUEMENT des modèles gratuits (décision du 16/10/2026)
+
+
+def est_gratuit(modele: str) -> bool:
+    return modele.strip().endswith(SUFFIXE_GRATUIT)
 
 
 class OpenRouter:
@@ -23,15 +28,18 @@ class OpenRouter:
 
     @property
     def disponible(self) -> bool:
-        return bool(self.cle_api and self.modele)
+        return bool(self.cle_api and self.modele and est_gratuit(self.modele))
 
     @property
     def nom(self) -> str:
         return f"OpenRouter · {self.modele}"
 
     def discuter(self, messages: list[dict]) -> str:
+        if self.modele and not est_gratuit(self.modele):
+            raise IAIndisponible(f"Modèle refusé : « {self.modele} » n'est pas un modèle gratuit (suffixe :free). "
+                                 "Seuls les modèles gratuits sont autorisés.")
         if not self.disponible:
-            raise IAIndisponible("IA non configurée : renseignez OPENROUTER_API_KEY et OPENROUTER_MODELE dans .env.")
+            raise IAIndisponible("IA non configurée : renseignez OPENROUTER_API_KEY et le modèle dans .env.")
         try:
             reponse = requests.post(
                 URL, timeout=DELAI_SECONDES,
@@ -40,6 +48,9 @@ class OpenRouter:
                       "max_tokens": self.max_jetons})
         except requests.RequestException as exc:
             raise IAIndisponible(f"Service d'IA injoignable ({type(exc).__name__}). Vérifiez la connexion.") from exc
+        if reponse.status_code == 404:
+            raise IAIndisponible("Modèle introuvable ou bloqué par vos réglages de confidentialité OpenRouter "
+                                 "(les modèles gratuits exigent d'autoriser leurs fournisseurs).")
         if reponse.status_code == 429:
             raise IAIndisponible("Limite d'appels du modèle gratuit atteinte : réessayez dans une minute.")
         if reponse.status_code != 200:

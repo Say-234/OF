@@ -16,13 +16,19 @@
 
 ## Questions ouvertes
 
-- Modèle gratuit OpenRouter à retenir (suffixe `:free`) et ses limites de débit (à vérifier à J11 avec la clé de Salim).
+- Premier appel réel à OpenRouter avec la clé de Salim : vérifier la tenue en français et le respect du protocole JSON par l'agent.
 - Conditions de l'offre gratuite de Streamlit Community Cloud : dépôt privé, mise en veille (à vérifier à J12).
 - Balance réelle anonymisée : à obtenir auprès du cabinet pour la recette (J12).
 
 ---
 
 ## Historique des sessions
+
+### 16/10/2026 — Modèles gratuits OpenRouter
+- Consigne de Salim : **uniquement des modèles gratuits**. Appliquée dans le code : `infrastructure/openrouter.py` refuse tout modèle sans suffixe `:free`, avant tout appel (testé).
+- Un modèle par usage : assistant `google/gemma-4-31b-it:free`, agent `nvidia/nemotron-3-super-120b-a12b:free` (identifiants vérifiés dans le catalogue public OpenRouter). Voir doc 08, §2.
+- Aucun modèle de décision type Laya/Jev parmi les gratuits ; le juge déterministe reste en place. Perspective : le reranker gratuit de NVIDIA pourrait remplacer le contrôle « vocabulaire commun » du juge.
+- `.env` créé localement (sans clé) ; Salim y colle sa clé.
 
 ### 16/10/2026 — Construction J11 et J12
 - **J11** : `infrastructure/corpus.py`, `recherche_bm25.py` (10 questions étalons sur 10 dans les 5 premiers), `openrouter.py` (modèle gratuit en réglage), `ia_desactivee.py` ; `application/assistant.py` (pare-feu : montants et noms de clients bloqués) ; `application/agent/` : profil pseudonymisé, juge déterministe (seuil de confiance 0,70), boucle JSON sans framework (10 tours, 90 s), outils, service (article inexistant rejeté, nombres de l'IA masqués, gain recalculé par le moteur, dossier réel refusé par défaut). Testé avec une fausse IA scriptée.

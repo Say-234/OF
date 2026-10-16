@@ -23,16 +23,23 @@ Les données sont dans `var/optifisc_cabinet.sqlite`. Restreindre l'accès Windo
 
 L'application fonctionne **entièrement sans IA** (la recherche d'articles reste disponible). Pour l'activer :
 
-1. Créer une clé sur [openrouter.ai/keys](https://openrouter.ai/keys).
-2. Choisir un **modèle gratuit** (nom terminé par `:free`) sur [openrouter.ai/models](https://openrouter.ai/models?max_price=0) ;
-   les modèles gratuits changent souvent et ont des limites de débit.
-3. Dans `.env` :
-   ```
-   OPTIFISC_IA=openrouter
-   OPENROUTER_API_KEY=<votre clé>
-   OPENROUTER_MODELE=<nom du modèle :free>
-   ```
-4. Relancer `lancer.bat`.
+1. Créer une clé sur [openrouter.ai/keys](https://openrouter.ai/keys) et la coller dans `.env`
+   (`OPENROUTER_API_KEY=`), jamais dans le code ni dans un message.
+2. **Uniquement des modèles gratuits** (identifiant terminé par `:free`) : l'application refuse tout autre modèle.
+   Modèles retenus le 16/10/2026 (vérifiés dans le catalogue OpenRouter, prix 0 $) :
+
+   | Usage | Réglage | Modèle | Pourquoi |
+   |---|---|---|---|
+   | Assistant CGI | `OPENROUTER_MODELE_ASSISTANT` | `google/gemma-4-31b-it:free` | Multilingue (140 langues) : rédaction fidèle en français à partir des articles |
+   | Agent de propositions | `OPENROUTER_MODELE_AGENT` | `nvidia/nemotron-3-super-120b-a12b:free` | Conçu pour la planification en plusieurs étapes (agents) |
+   | Secours plus rapide | l'un ou l'autre | `google/gemma-4-26b-a4b-it:free` | Si les précédents sont saturés |
+
+   Écartés : modèles de code (Laguna, North Mini Code), qui de plus peuvent réutiliser les données envoyées pour
+   leur entraînement (Laguna XS 2.1 disparaît en outre le 31/10/2026) ; modèles de sécurité, d'image ou de vidéo.
+3. Dans les réglages de confidentialité du compte OpenRouter, autoriser les fournisseurs des modèles gratuits
+   (sinon l'appel échoue avec « modèle introuvable »). C'est précisément pourquoi le pare-feu de données
+   n'envoie que des textes de loi publics et un profil pseudonymisé.
+4. Mettre `OPTIFISC_IA=openrouter` dans `.env` puis relancer `lancer.bat`.
 
 **Confidentialité** (doc 01, A.3) : par défaut, l'agent de propositions ne fonctionne **que sur les dossiers de
 démonstration**. Pour un dossier réel, il faut l'activer explicitement (`OPTIFISC_IA_DOSSIERS_REELS=oui`)

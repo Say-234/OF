@@ -171,3 +171,23 @@ def test_outils_utilitaires():
                                                                                      "arguments": {}}
     assert lire_action("pas de json") is None
     assert masquer_nombres("gain de 3 000 000 FCFA selon l'art. 41") == "gain de [montant masqué] FCFA selon l'art. 41"
+
+
+# ------------------------------------------------------------------ modèles gratuits uniquement
+def test_seuls_les_modeles_gratuits_sont_autorises():
+    from optifisc.infrastructure.openrouter import OpenRouter
+    gratuit = OpenRouter("cle-de-test", "google/gemma-4-31b-it:free")
+    payant = OpenRouter("cle-de-test", "openai/gpt-5")
+    assert gratuit.disponible and not payant.disponible
+    with pytest.raises(IAIndisponible, match="gratuit"):
+        payant.discuter([{"role": "user", "content": "test"}])        # refusé AVANT tout appel réseau
+
+
+def test_un_modele_par_usage(monkeypatch):
+    from optifisc.composition import fournisseur_ia
+    monkeypatch.setenv("OPTIFISC_IA", "openrouter")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "cle-de-test")
+    monkeypatch.setenv("OPENROUTER_MODELE_ASSISTANT", "google/gemma-4-31b-it:free")
+    monkeypatch.setenv("OPENROUTER_MODELE_AGENT", "nvidia/nemotron-3-super-120b-a12b:free")
+    assert fournisseur_ia("ASSISTANT").modele.startswith("google/")
+    assert fournisseur_ia("AGENT").modele.startswith("nvidia/")

@@ -70,10 +70,15 @@ class Application:
         return self.dependances.referentiel
 
 
-def fournisseur_ia():
-    """Choix du fournisseur d'IA selon .env : OpenRouter (modèle gratuit) ou aucune IA."""
+def fournisseur_ia(usage: str = "ASSISTANT"):
+    """Choix du fournisseur d'IA selon .env : OpenRouter (modèles gratuits uniquement) ou aucune IA.
+
+    usage : « ASSISTANT » (rédaction en français à partir d'articles) ou « AGENT » (raisonnement en plusieurs
+    étapes) ; chacun peut avoir son modèle (OPENROUTER_MODELE_ASSISTANT / _AGENT), sinon OPENROUTER_MODELE.
+    """
     if os.environ.get("OPTIFISC_IA", "desactivee") == "openrouter":
-        return OpenRouter(os.environ.get("OPENROUTER_API_KEY", ""), os.environ.get("OPENROUTER_MODELE", ""))
+        modele = os.environ.get(f"OPENROUTER_MODELE_{usage}") or os.environ.get("OPENROUTER_MODELE", "")
+        return OpenRouter(os.environ.get("OPENROUTER_API_KEY", ""), modele)
     return IADesactivee()
 
 
@@ -96,11 +101,12 @@ def construire(chemin_base: Path | str | None = None, racine_referentiel: Path |
     )
     comptes = ServiceComptes(DepotUtilisateursSqlite(base), MotsDePassePbkdf2(), dep.journal, horloge)
     recherche = RechercheBm25(charger_corpus(racine_referentiel / "corpus"))
-    fournisseur = fournisseur or fournisseur_ia()
+    ia_assistant = fournisseur or fournisseur_ia("ASSISTANT")
+    ia_agent = fournisseur or fournisseur_ia("AGENT")
     reels = os.environ.get("OPTIFISC_IA_DOSSIERS_REELS", "non").lower() == "oui"
     app = Application(dep, comptes, ServiceDossiers(dep), ServiceBalance(dep), ServiceCalcul(dep),
                       ServiceScenarios(dep), ServiceValidation(dep), ServiceLivrables(dep),
-                      ServiceAssistant(dep, recherche, fournisseur), ServiceAgent(dep, recherche, fournisseur, reels),
+                      ServiceAssistant(dep, recherche, ia_assistant), ServiceAgent(dep, recherche, ia_agent, reels),
                       mode)
     if mode == "demo":
         initialiser_demonstration(app, racine_referentiel / "demo")
