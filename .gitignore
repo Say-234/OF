@@ -1,0 +1,13 @@
+# environnement Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# secrets : la clé OpenRouter ne doit JAMAIS être versionnée
+.env
+
+# données de travail : base SQLite, livrables générés, journaux
+var/
