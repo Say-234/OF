@@ -1,0 +1,381 @@
+# =====================================================================
+#  OptiFisc — Règles de passage du résultat comptable au résultat fiscal
+#  --------------------------------------------------------------------
+#  CE FICHIER EST FAIT POUR LES COMPTABLES. Pour ajouter une règle :
+#   1. copier un bloc existant, changer "id" (unique) ;
+#   2. choisir la "categorie" (liste ci-dessous) ;
+#   3. choisir un "type" :
+#        totalite       -> réintègre tout le solde des comptes listés            (lu dans la balance)
+#        plafond_ca     -> réintègre la part au-delà de (taux x CA HT)            (lu dans la balance)
+#        plafond_ebe    -> intérêts nets au-delà de taux x (résultat avant impôt,
+#                          intérêts, dotations)  [art. 25-3]                      (lu dans la balance)
+#        saisie         -> montant saisi par le collaborateur (info absente de la balance)
+#                          options : "coefficient" (part retenue), "plafond_montant" (maximum)
+#        plafond_saisie -> montant saisi, réintégré pour la part au-delà de
+#                          (taux_plafond x assiette) ; assiette = chiffre_affaires,
+#                          frais_generaux ou benefice_avant (bénéfice avant ces frais)
+#   4. "sens": reintegration (augmente le résultat) ou deduction (le diminue) ;
+#   5. citer l'article ; "statut: a_valider" tant que non testé sur un cas chiffré ;
+#      passer à "statut: valide" + "valide_par: <nom, date>" après validation.
+#  Les comptes sont des PRÉFIXES SYSCOHADA révisé ("647" couvre 6471, 6478...).
+#  "ou_trouver" dit au collaborateur où chercher le montant à saisir.
+# =====================================================================
+
+categories:
+  - id: non_deductibles
+    court: "Non déductibles"
+    libelle: "Charges non déductibles par nature"
+    aide: "Réintégrées en totalité, quel que soit leur montant."
+  - id: plafonnees
+    court: "Plafonnées"
+    libelle: "Charges déductibles dans une limite"
+    aide: "Seule la part au-delà du plafond est réintégrée."
+  - id: conditions
+    court: "Conditions non remplies"
+    libelle: "Charges ne remplissant pas les conditions de déduction"
+    aide: "Justificatifs, retenues à la source, bénéficiaires : à vérifier dans les pièces."
+  - id: deductions
+    court: "Déductions"
+    libelle: "Produits non imposables et déductions"
+    aide: "Diminuent le résultat fiscal. À justifier ligne par ligne."
+
+regles:
+
+  # ------------------------------------------------ 1. Charges non déductibles par nature
+  - id: R01_IS_COMPTABILISE
+    categorie: non_deductibles
+    libelle: "Impôt sur les bénéfices comptabilisé"
+    type: totalite
+    sens: reintegration
+    comptes: ["89"]                    # 89 Impôts sur le résultat
+    article: "CGI art. 35"
+    explication: "L'impôt sur les bénéfices n'est pas une charge déductible."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R02_AMENDES_PENALITES
+    categorie: non_deductibles
+    libelle: "Pénalités et amendes fiscales (compte 647)"
+    type: totalite
+    sens: reintegration
+    comptes: ["647"]                   # 647 Pénalités, amendes fiscales
+    article: "CGI art. 36"
+    explication: "Transactions, amendes, confiscations, pénalités et sanctions ne sont pas déductibles."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R13_AMENDES_AUTRES
+    categorie: non_deductibles
+    libelle: "Autres amendes et pénalités (sociales, douanières, prix, changes)"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 36"
+    explication: "Amendes non fiscales comptabilisées ailleurs qu'en 647 (charges diverses, HAO…)."
+    ou_trouver: "Grand livre des comptes 658 et 83 ; avis de pénalités CNSS, douane."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R06_TVM
+    categorie: non_deductibles
+    libelle: "Taxe sur les véhicules à moteur"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 35"
+    explication: "Impôt expressément exclu des impôts déductibles."
+    ou_trouver: "Quittances TVM de l'année ; compte d'impôts et taxes (64)."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R11_DEPENSES_SOMPTUAIRES
+    categorie: non_deductibles
+    libelle: "Dépenses somptuaires (chasse, pêche sportive, résidences d'agrément…)"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 33"
+    explication: "Non déductibles et considérées comme bénéfices distribués, sauf si c'est l'activité principale."
+    ou_trouver: "Factures de loisirs, bateaux, avions de tourisme, résidences secondaires."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R14_BENEFICIAIRE_NON_REVELE
+    categorie: non_deductibles
+    libelle: "Rémunérations dont le bénéficiaire n'est pas identifié"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 34"
+    explication: "Non déductibles si l'entreprise ne révèle pas l'identité et l'adresse du bénéficiaire."
+    ou_trouver: "Commissions, honoraires, primes versés sans identité ni adresse du bénéficiaire."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R15_AUTO_ASSURANCE
+    categorie: non_deductibles
+    libelle: "Sommes mises de côté pour sa propre assurance"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 31-2"
+    explication: "Les sommes constituées par l'entreprise en vue de sa propre assurance ne sont pas déductibles."
+    ou_trouver: "Dotations ou charges « auto-assurance » sans contrat avec une compagnie."
+    statut: a_valider
+    valide_par: ""
+
+  # ------------------------------------------------ 2. Charges déductibles dans une limite
+  - id: R03_DONS_LIBERALITES
+    categorie: plafonnees
+    libelle: "Dons, cotisations et libéralités au-delà de 1 ‰ du CA HT"
+    type: plafond_ca
+    sens: reintegration
+    comptes: ["6582", "6583", "835"]   # 6582 Dons, 6583 Mécénat, 835 Dons et libéralités accordés (HAO) - à valider
+    taux_plafond: 0.001
+    article: "CGI art. 32-1"
+    explication: "Déductibles dans la limite de 1 ‰ du CA HT (une cotisation professionnelle est hors plafond). Dons éducation/santé/culture à l'État : supplément de 25 M FCFA, à saisir en R12."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R04_CADEAUX_PUBLICITAIRES
+    categorie: plafonnees
+    libelle: "Cadeaux et objets publicitaires au-delà de 3 ‰ du CA HT"
+    type: plafond_ca
+    sens: reintegration
+    comptes: ["6276"]                  # 6276 Cadeaux à la clientèle
+    taux_plafond: 0.003
+    article: "CGI art. 32-3"
+    explication: "Admis dans la limite de 3 ‰ du CA HT, sur factures."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R05_INTERETS_30_EBE
+    categorie: plafonnees
+    libelle: "Intérêts nets au-delà de 30 % du résultat avant impôt, intérêts et dotations"
+    type: plafond_ebe
+    sens: reintegration
+    comptes: ["671", "672", "674"]     # charges d'intérêts
+    comptes_produits: ["771"]          # produits d'intérêts déduits : intérêts NETS (à valider)
+    taux_plafond: 0.30
+    article: "CGI art. 25-3"
+    explication: "Limite globale de 30 % des intérêts nets. L'excédent est reportable 5 ans : le déduire les années suivantes en D04."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R09_INTERETS_CCA
+    categorie: plafonnees
+    libelle: "Intérêts versés aux associés au-delà du taux BCEAO + 3 points"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 25-2"
+    explication: "Déductibles dans la limite du taux directeur BCEAO majoré de 3 points, et si le capital est entièrement libéré."
+    ou_trouver: "Contrat de compte courant d'associé ; intérêts calculés au-delà du taux plafond."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R07_AMORT_VP_25M
+    categorie: plafonnees
+    libelle: "Amortissement des voitures de tourisme (fraction du prix > 25 M FCFA TTC)"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 38-4"
+    explication: "Seule la fraction du prix TTC ≤ 25 000 000 FCFA est amortissable. S'applique aussi aux loyers de location."
+    ou_trouver: "Registre des immobilisations : véhicules de tourisme au-delà de 25 M TTC."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R16_FRAIS_SIEGE
+    categorie: plafonnees
+    libelle: "Frais de siège au-delà de 10 % du bénéfice avant ces frais"
+    type: plafond_saisie
+    sens: reintegration
+    assiette: benefice_avant
+    taux_plafond: 0.10
+    article: "CGI art. 28-2"
+    explication: "Quote-part des frais généraux de siège facturée à une filiale ou un établissement au Bénin. Saisir le montant total comptabilisé : l'outil réintègre l'excédent."
+    ou_trouver: "Factures de la société mère « frais de siège » / management fees."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R17_ASSISTANCE_TECHNIQUE
+    categorie: plafonnees
+    libelle: "Assistance technique versée à l'étranger au-delà de 10 % des frais généraux"
+    type: plafond_saisie
+    sens: reintegration
+    assiette: frais_generaux
+    taux_plafond: 0.10
+    article: "CGI art. 28-3"
+    explication: "Frais d'assistance technique, comptable, financière et d'études versés à une société non exploitée au Bénin. Saisir le montant total : l'outil réintègre l'excédent."
+    ou_trouver: "Factures de prestataires étrangers (assistance, études, conseil)."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R18_REDEVANCES_ETRANGER
+    categorie: plafonnees
+    libelle: "Redevances versées à l'étranger au-delà de 5 % du CA HT"
+    type: plafond_saisie
+    sens: reintegration
+    assiette: chiffre_affaires
+    taux_plafond: 0.05
+    article: "CGI art. 27-2"
+    explication: "Redevances (brevets, marques, logiciels, savoir-faire) versées à une entreprise non exploitée au Bénin. Saisir le montant total : l'outil réintègre l'excédent."
+    ou_trouver: "Compte 634 (redevances) : part versée à des bénéficiaires étrangers."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R19_COMMISSIONS_ACHATS
+    categorie: plafonnees
+    libelle: "Commissions sur achats au-delà de 5 % des achats (centrales d'achat)"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 26-1"
+    explication: "Commissions déductibles dans la limite de 5 % des achats HT faits par la centrale ou l'intermédiaire. Saisir la part excédentaire."
+    ou_trouver: "Factures de centrales d'achat ; montant des achats qu'elles ont réalisés."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R20_FRAIS_DEVELOPPEMENT
+    categorie: plafonnees
+    libelle: "Frais de développement > 1 M FCFA à étaler sur 4 ans"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 37"
+    explication: "Au-delà de 1 000 000 FCFA, la déduction est étalée sur 4 ans : réintégrer la part des années suivantes (3/4 la première année)."
+    ou_trouver: "Frais de développement passés en charges dans l'exercice."
+    statut: a_valider
+    valide_par: ""
+
+  # ------------------------------------------------ 3. Conditions de déduction non remplies
+  - id: R10_PROVISIONS_NON_DEDUCTIBLES
+    categorie: conditions
+    libelle: "Provisions ne remplissant pas les conditions de l'art. 41"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 41"
+    explication: "Pertes ou charges non nettement précisées, non probables, nées hors de l'exercice ou absentes du relevé des provisions."
+    ou_trouver: "Tableau des provisions : provisions forfaitaires ou non documentées."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R21_CHARGES_NON_JUSTIFIEES
+    categorie: conditions
+    libelle: "Charges sans justificatif suffisant (pas de facture normalisée)"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 20-1-d"
+    explication: "Les charges doivent être appuyées de justifications suffisantes, notamment de factures normalisées."
+    ou_trouver: "Revue des pièces : factures non normalisées, reçus simples, charges sans pièce."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R22_RETENUE_NON_REVERSEE
+    categorie: conditions
+    libelle: "Sommes soumises à retenue à la source dont la retenue n'a pas été payée"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 20-1-g"
+    explication: "Pour les sommes donnant lieu à retenue à la source, la preuve du paiement de la retenue est exigée."
+    ou_trouver: "Honoraires, loyers, prestations de non-résidents : quittances de retenue."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R23_REMUNERATIONS_DIRIGEANTS
+    categorie: conditions
+    libelle: "Rémunérations de dirigeants excessives ou non soumises à l'ITS"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 24"
+    explication: "Déductibles si travail effectif, montant non excessif et soumises à l'impôt sur les traitements et salaires."
+    ou_trouver: "Rémunérations des gérants et administrateurs ; déclarations ITS."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R24_REGIME_FISCAL_PRIVILEGIE
+    categorie: conditions
+    libelle: "Paiements vers un pays à fiscalité privilégiée non justifiés"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 30"
+    explication: "Intérêts, redevances et services payés à des bénéficiaires à régime fiscal privilégié : déductibles seulement si l'opération est réelle et normale."
+    ou_trouver: "Paiements à l'étranger : pays du bénéficiaire et preuve de la réalité du service."
+    statut: a_valider
+    valide_par: ""
+
+  - id: R25_AMORTISSEMENTS_EXCEDENTAIRES
+    categorie: conditions
+    libelle: "Amortissements au-delà des taux admis"
+    type: saisie
+    sens: reintegration
+    article: "CGI art. 38-1"
+    explication: "Seuls les amortissements réellement comptabilisés, dans la limite des taux généralement admis (arrêté ministériel), sont déductibles."
+    ou_trouver: "Tableau des amortissements comparé aux taux admis par l'administration."
+    statut: a_valider
+    valide_par: ""
+
+  # ------------------------------------------------ 4. Produits non imposables et déductions
+  - id: R12_DONS_ETAT_SUPPLEMENT
+    categorie: deductions
+    libelle: "Dons à l'État (éducation, santé, culture…) déjà réintégrés en R03"
+    type: saisie
+    sens: deduction
+    plafond_montant: 25000000
+    article: "CGI art. 32-2"
+    explication: "Si une partie des dons réintégrés en R03 relève de l'art. 32-2, la déduire ici (25 000 000 FCFA au plus, preuve de réception jointe à la déclaration)."
+    ou_trouver: "Attestations de réception des dons par l'État, ses démembrements ou une fédération reconnue."
+    statut: a_valider
+    valide_par: ""
+
+  - id: D01_TITRES_PUBLICS
+    categorie: deductions
+    libelle: "Revenus des titres publics béninois (exonérés en totalité)"
+    type: saisie
+    sens: deduction
+    article: "CGI art. 15-1 et 15-2"
+    explication: "Revenus des titres émis par l'État béninois, les collectivités et leurs démembrements : exonérés sans quote-part de frais."
+    ou_trouver: "Compte 77 : intérêts de bons et obligations du Trésor béninois."
+    statut: a_valider
+    valide_par: ""
+
+  - id: D02_REVENUS_MOBILIERS
+    categorie: deductions
+    libelle: "Autres revenus de capitaux mobiliers et dividendes (70 % déduits)"
+    type: saisie
+    sens: deduction
+    coefficient: 0.70
+    article: "CGI art. 15-2 et 15-3"
+    explication: "Revenu net exonéré sous déduction d'une quote-part de frais de 30 % : saisir le revenu, l'outil déduit 70 %."
+    ou_trouver: "Compte 772 (revenus de participations) et revenus de valeurs mobilières ayant supporté l'IRCM."
+    statut: a_valider
+    valide_par: ""
+
+  - id: D03_PLUS_VALUES_REINVESTIES
+    categorie: deductions
+    libelle: "Plus-values de cession avec engagement de réinvestir (3 ans)"
+    type: saisie
+    sens: deduction
+    article: "CGI art. 17"
+    explication: "Plus-value sur immobilisations détenues depuis 5 ans au moins, avec engagement de réinvestir au Bénin dans les 3 ans, annexé à la déclaration."
+    ou_trouver: "Comptes 82 / 81 : cessions d'immobilisations et engagement de réemploi."
+    statut: a_valider
+    valide_par: ""
+
+  - id: D04_INTERETS_REPORTES
+    categorie: deductions
+    libelle: "Intérêts non déduits des exercices antérieurs (report 5 ans)"
+    type: saisie
+    sens: deduction
+    article: "CGI art. 25-3"
+    explication: "Fraction d'intérêts réintégrée les années précédentes (R05), déductible dans la limite de 5 ans et du plafond de 30 %."
+    ou_trouver: "Tableaux de passage des 5 derniers exercices : réintégrations R05."
+    statut: a_valider
+    valide_par: ""
+
+# =====================================================================
+#  Sanctions et coûts HORS résultat fiscal : ils ne changent pas l'IS,
+#  mais le cabinet doit les signaler au client.
+# =====================================================================
+sanctions:
+  - id: S01_TIMBRE_ESPECES
+    libelle: "Paiements en espèces de 100 000 FCFA ou plus"
+    type: taux_sur_saisie
+    parametre: paiements_especes        # seuil et taux lus dans parametres_fiscaux
+    article: "CGI art. 21, 423-4 et 503-1"
+    explication: "Règlement en espèces interdit à partir de 100 000 FCFA. Sanction : droit de timbre-quittance de 1 % du paiement. La charge reste déductible."
+    ou_trouver: "Journal de caisse : dépenses de 100 000 FCFA ou plus réglées en espèces."
+    statut: a_valider
+    valide_par: ""

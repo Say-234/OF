@@ -1,0 +1,45 @@
+# =====================================================================
+#  OptiFisc — Périmètre du prototype (gelé pour la soutenance)
+#  Ce fichier est affiché dans l'application (page « Référentiel de règles »).
+#  Tout ce qui n'est pas « couvert » relève des perspectives du mémoire.
+# =====================================================================
+objet: >-
+  Pilotage de l'impôt sur les sociétés EN COURS d'exercice : à partir d'une balance
+  arrêtée à date, estimer l'IS de l'année, identifier les leviers légaux encore
+  activables avant la clôture et gérer les acomptes. Ce n'est ni la liasse
+  fiscale, ni la revue fiscale de fin d'exercice.
+
+couvert:
+  - titre: "Contribuables"
+    detail: "Personnes morales soumises à l'IS de droit commun (art. 46), exercice civil clos le 31/12."
+  - titre: "Impôt calculé"
+    detail: "IS au taux de 30 % ou 25 %, minimum de perception (1 %, 3 %, 10 %, plancher 250 000 FCFA), redevance ORTB."
+  - titre: "Passage résultat comptable → fiscal"
+    detail: "Réintégrations et déductions des art. 15 à 43 listées dans referentiel/2026/retraitements.yaml, déficits reportables (art. 43)."
+  - titre: "Leviers avant clôture"
+    detail: "Amortissement dégressif (art. 40) et accéléré (art. 39), provisions (art. 41), dons (art. 32), charges anticipées (art. 20 et 23)."
+  - titre: "Acomptes"
+    detail: "Échéancier (art. 51), demande de réduction ou de dispense (art. 52), imputation de l'AIB (art. 133-4)."
+  - titre: "Données d'entrée"
+    detail: "Balance générale SYSCOHADA révisé (Excel ou CSV), à 4, 6 ou 8 colonnes, avec ou sans lignes de totaux."
+  - titre: "Livrables"
+    detail: "Note de pilotage (Word), tableau de passage et piste d'audit (Excel), projet de lettre au DGI (Word)."
+
+non_couvert:
+  - titre: "Autres impôts"
+    detail: "TVA, IBA, TPS, ITS, IRCM, patente, taxes foncières."
+  - titre: "Régimes particuliers"
+    detail: "Conventions minières et pétrolières, Code des investissements, zones franches, sociétés coopératives, assurances (art. 48), banques (art. 42), groupes."
+  - titre: "Situations particulières"
+    detail: "Exercice décalé ou de durée différente de 12 mois, première année d'activité, fusion, dissolution (art. 53)."
+  - titre: "Contrôles fins"
+    detail: "Prix de transfert (art. 45), report de l'excédent d'intérêts calculé automatiquement, crédits d'impôt."
+  - titre: "Fonctionnement"
+    detail: "Multi-exercices, multi-utilisateurs, connexion directe aux logiciels comptables, dépôt en ligne (e-services DGI)."
+
+hypotheses:
+  - "Projection linéaire des comptes de gestion (classes 6, 7, 8) au 31/12, corrigée par un coefficient d'activité et des ajustements saisis."
+  - "Les dotations aux amortissements de l'année, rarement passées en cours d'exercice, sont saisies par le collaborateur."
+  - "Les comptes de bilan (classes 1 à 5) servent uniquement aux contrôles de cohérence."
+  - "Les règles et les comptes SYSCOHADA associés restent « à valider » par le cabinet tant qu'ils n'ont pas été testés sur un cas chiffré."
+  - "Tous les résultats sont des aides à la décision : ils doivent être validés par l'expert-comptable."

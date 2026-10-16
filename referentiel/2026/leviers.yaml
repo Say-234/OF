@@ -1,0 +1,113 @@
+# =====================================================================
+#  OptiFisc — Leviers d'optimisation LÉGALE activables EN COURS D'EXERCICE
+#  Chaque levier = une option ouverte par le CGI, avec ses conditions.
+#  L'outil chiffre ; l'expert-comptable décide et documente.
+#  "parametres" : seuils et taux utilisés par le calcul (domaine/moteur/leviers.py).
+#  "pertinence" : critères du juge déterministe (application/agent/juge.py) :
+#     au_dessus_du_seuil   réduire le résultat réduit l'impôt (pas au minimum de perception)
+#     mois_restants        il reste au moins un mois avant la clôture
+#     marge_dons           les dons déjà comptabilisés sont sous le plafond
+#     surpaiement_acomptes les acomptes dépassent l'IS estimé
+#  Pour ajouter un levier, les collaborateurs décrivent ici conditions et
+#  article ; le développeur code ensuite son calcul dans domaine/moteur/leviers.py
+# =====================================================================
+leviers:
+
+  - id: L01_INVESTISSEMENT_DEGRESSIF
+    libelle: "Acquérir avant la clôture un matériel neuf amorti en dégressif"
+    article: "CGI art. 40"
+    conditions:
+      - "Matériel et outillage acquis à l'état NEUF"
+      - "Valeur unitaire ≥ 10 000 000 FCFA HT"
+      - "Durée d'utilisation > 3 ans"
+      - "Coefficient : 1,5 (3-4 ans) ; 2,0 (5-6 ans) ; 2,5 (> 6 ans)"
+      - "Point de départ : 1er jour du mois d'acquisition"
+      - "Tableau spécial joint à la déclaration annuelle"
+    effet: "Augmente la dotation déductible de l'exercice (décalage d'impôt, pas une économie définitive)."
+    moment: "Décision à prendre au plus tard avant la clôture ; plus l'achat est tôt, plus la dotation de l'année est forte."
+    parametres:
+      valeur_unitaire_min_ht: 10000000     # art. 40-1-a
+      duree_superieure_a: 3                # art. 40-1-b (en années)
+      coefficients:                        # art. 40-2 : durée maximale -> coefficient
+        - {duree_max: 4, coefficient: 1.5}
+        - {duree_max: 6, coefficient: 2.0}
+        - {duree_max: 999, coefficient: 2.5}
+      compte_dotation: "6813"              # Dotations aux amortissements des immobilisations corporelles
+    pertinence: [au_dessus_du_seuil, mois_restants]   # critères évalués par le juge déterministe
+    statut: a_valider
+
+  - id: L02_AMORTISSEMENT_ACCELERE
+    libelle: "Amortissement accéléré d'un matériel neuf (1ère annuité doublée)"
+    article: "CGI art. 39"
+    conditions:
+      - "Matériel et outillage NEUF"
+      - "Utilisé exclusivement pour fabrication, manutention, hôtellerie, téléphonie, transport ou exploitation agricole"
+      - "Durée de vie > 5 ans ; la durée est alors réduite d'une année"
+    effet: "Première annuité doublée (décalage d'impôt, pas une économie définitive)."
+    moment: "Avant la clôture."
+    parametres:
+      duree_superieure_a: 5                # art. 39-1-b
+      multiplicateur_premiere_annuite: 2   # art. 39-2
+      compte_dotation: "6813"
+    pertinence: [au_dessus_du_seuil, mois_restants]   # critères évalués par le juge déterministe
+    statut: a_valider
+
+  - id: L03_PROVISION_JUSTIFIEE
+    libelle: "Constater une provision pour perte ou charge probable"
+    article: "CGI art. 41"
+    conditions:
+      - "Perte ou charge DÉDUCTIBLE, nettement précisée"
+      - "Rendue probable par des événements en cours, née dans l'exercice"
+      - "Comptabilisée ET portée au relevé des provisions"
+    effet: "Déduction de l'exercice ; reprise imposable si la provision devient sans objet."
+    moment: "Recenser les litiges/risques au fil de l'année, documenter avant la clôture."
+    parametres:
+      compte_dotation: "6911"              # Dotations aux provisions pour risques et charges
+    pertinence: [au_dessus_du_seuil]   # critères évalués par le juge déterministe
+    statut: a_valider
+
+  - id: L04_DONS_PLAFOND
+    libelle: "Utiliser la marge de déduction des dons (1 ‰ du CA HT + 25 M à l'État)"
+    article: "CGI art. 32"
+    conditions:
+      - "1 ‰ du CA HT pour dons, cotisations, libéralités"
+      - "+ 25 000 000 FCFA pour dons éducation, santé, culture, tourisme, arts ou infrastructures à l'État / démembrements / fédérations sportives reconnues"
+      - "Preuve de réception jointe à la déclaration"
+    effet: "Le don reste une dépense : l'économie d'IS réduit seulement son coût net."
+    moment: "Planifier les dons dans l'année, dans la limite du plafond."
+    parametres:
+      regle_plafond: R03_DONS_LIBERALITES        # taux et comptes lus dans regles_fiscales.yaml
+      regle_supplement: R12_DONS_ETAT_SUPPLEMENT # plafond de 25 M lu dans regles_fiscales.yaml
+      compte_charge: "6582"
+    pertinence: [au_dessus_du_seuil, marge_dons]   # critères évalués par le juge déterministe
+    statut: a_valider
+
+  - id: L05_CHARGES_ANTICIPEES
+    libelle: "Engager dans l'exercice des dépenses nécessaires prévues (formation, entretien...)"
+    article: "CGI art. 20 et 23-2"
+    conditions:
+      - "Charge engagée dans l'exercice, dans l'intérêt de l'exploitation"
+      - "Effective et justifiée par facture normalisée"
+      - "Pas de règlement en espèces ≥ 100 000 FCFA (art. 21)"
+    effet: "Rattache la charge à l'exercice ; décaissement réel."
+    moment: "Avant la clôture."
+    parametres:
+      compte_charge: "633"                 # 633 Frais de formation du personnel (à adapter à la nature)
+      # seuil espèces : parametres_fiscaux > paiements_especes
+    pertinence: [au_dessus_du_seuil, mois_restants]   # critères évalués par le juge déterministe
+    statut: a_valider
+
+  - id: L06_REDUCTION_ACOMPTES
+    libelle: "Demander la réduction (ou dispense) des acomptes d'IS"
+    article: "CGI art. 52"
+    conditions:
+      - "IS estimé de l'année < total des acomptes (1/4 de l'IS N-1 chacun)"
+      - "Demande motivée au DGI un (1) mois avant l'échéance"
+      - "Être à jour de ses dettes fiscales (sinon refus possible)"
+      - "Silence du DGI 15 jours = acceptation"
+      - "Pénalité de 20 % de l'écart si l'estimation est inexacte de plus de 1/10"
+    effet: "Gain de TRÉSORERIE (l'excédent ne sera pas avancé à l'État)."
+    moment: "Uniquement en cours d'année : c'est le levier le plus concret du pilotage."
+    parametres: {}                         # délais et taux : parametres_fiscaux > acomptes > reduction
+    pertinence: [surpaiement_acomptes]   # critères évalués par le juge déterministe
+    statut: a_valider

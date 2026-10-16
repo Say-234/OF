@@ -1,0 +1,120 @@
+# =====================================================================
+#  OptiFisc — Paramètres fiscaux (Bénin, CGI 2026)
+#  Fichier modifiable par les collaborateurs comptables.
+#  Règle d'or : toute valeur doit citer son article et porter la mention
+#  "valide_par" une fois vérifiée par un professionnel du cabinet.
+#  Aucun taux, seuil ou délai n'est écrit dans le code Python : tout est ici.
+#  Les nombres décimaux (0.30) sont lus en Decimal exact, jamais en float.
+#  Le fichier est validé au chargement : une faute de frappe est signalée
+#  avec un message clair (infrastructure/referentiel_yaml.py).
+# =====================================================================
+millesime: 2026
+source: "Code Général des Impôts du Bénin 2026"
+
+exercice:
+  annee: 2026                           # exercice analysé (clôture au 31/12)
+  annee_precedente: 2025                # base des acomptes (art. 51-2)
+
+impot_societes:
+  taux:
+    # Art. 46-1
+    industriel_ou_enseignement: 0.25   # personnes morales à activité industrielle (hors extractives), écoles privées
+    droit_commun: 0.30                 # autres personnes morales
+    libelles:
+      droit_commun: "30 % — cas général"
+      industriel_ou_enseignement: "25 % — activité industrielle ou école privée"
+    article: "CGI art. 46"
+    valide_par: ""
+
+  minimum_perception:
+    # Art. 47-1 : % des produits encaissables
+    taux_par_secteur:
+      immobilier: 0.10   # sociétés à prépondérance immobilière (art. 101)
+      btp: 0.03          # bâtiment et travaux publics
+      autres: 0.01
+    libelles_secteur:
+      btp: "Bâtiment et travaux publics"
+      immobilier: "Société à prépondérance immobilière"
+      autres: "Autres activités (commerce, services, industrie…)"
+    plancher_absolu: 250000        # art. 47-3
+    # Art. 47-2 : exclus des produits encaissables (préfixes de comptes SYSCOHADA révisé)
+    comptes_exclus_produits_encaissables:
+      "72": "Production immobilisée"
+      "73": "Variation des stocks de biens et services produits (production stockée)"
+      "78": "Transferts de charges"
+      "79": "Reprises de provisions, dépréciations et autres"
+      "86": "Reprises de provisions et dépréciations HAO"
+    article: "CGI art. 47"
+    valide_par: ""
+
+  redevance_ortb:
+    # Art. 47-6 : l'impôt est majoré de 4 000 FCFA, payés avec l'acompte du 10 mars
+    montant: 4000
+    article: "CGI art. 47-6"
+    valide_par: ""
+
+  acomptes:
+    # Art. 51 : 4 acomptes = 1/4 de l'IS N-1, au plus tard le 10 de ces mois
+    echeances: ["03-10", "06-10", "09-10", "12-10"]
+    fraction: 0.25
+    article: "CGI art. 51"
+    reduction:
+      # Art. 52 : demande au DGI un (1) mois avant l'échéance de l'acompte
+      delai_depot_jours_avant_echeance: 30
+      delai_reponse_dgi_jours: 15      # silence = acceptation tacite (art. 52-5)
+      tolerance_inexactitude: 0.10     # au-delà : pénalité (art. 52-7)
+      penalite_taux: 0.20
+      article: "CGI art. 52"
+      # CHOIX DU CABINET (pas une règle légale) : marge ajoutée à l'IS estimé dans la demande
+      marge_prudence: 0.05
+    valide_par: ""
+
+  depot_declaration: "04-30"            # art. 49 : au plus tard le 30 avril N+1
+
+  report_deficitaire:
+    duree_exercices: 5                  # art. 43-2
+    article: "CGI art. 43"
+
+aib:
+  # Art. 132 à 133 : acompte sur impôt assis sur les bénéfices
+  taux:
+    importations_achats_immatricules: 0.01
+    prestations_services_immatricules: 0.03
+    non_immatricules: 0.05
+  imputation: "Excédent non imputé au 31/12 imputé sur l'IS (art. 133-4)"
+  article: "CGI art. 132-133"
+
+paiements_especes:
+  # Art. 21 : interdiction de régler en espèces une dépense >= 100 000 FCFA
+  # Art. 503-1 et 423-4 : sanction = droit de timbre-quittance de 1 % du paiement
+  #   (ce n'est PAS une réintégration au résultat fiscal)
+  seuil: 100000
+  taux_timbre: 0.01
+  article: "CGI art. 21, 423-4 et 503-1"
+  valide_par: ""
+
+interets_associes:
+  # Art. 25-2 : intérêts versés aux associés plafonnés au taux directeur BCEAO + 3 points
+  taux_directeur_bceao: null            # A COMPLETER par le cabinet (taux en vigueur)
+  majoration: 0.03
+  article: "CGI art. 25-2"
+
+# Balance SYSCOHADA révisé : comment lire le résultat comptable
+plan_comptable:
+  charges: ["6", "81", "83", "85", "87", "89"]
+  produits: ["7", "82", "84", "86", "88"]
+  impot_sur_resultat: ["89"]           # IS comptabilisé -> réintégré (art. 35)
+  chiffre_affaires: ["70"]
+  interets: ["671", "672", "674"]      # intérêts des emprunts, du crédit-bail, autres intérêts (à valider)
+  produits_interets: ["771"]           # intérêts de prêts et créances : pour les intérêts NETS (art. 25-3, à valider)
+  dotations: ["681", "691", "697", "85"]
+  # Art. 28-3 : frais généraux = charges d'exploitation - achats stockés - amortissements - provisions
+  charges_exploitation: ["60", "61", "62", "63", "64", "65", "66", "681", "691"]
+  achats_stockes: ["601", "602", "603", "604"]   # achats de marchandises, matières et variations (à valider)
+  amortissements_exploitation: ["681"]
+  provisions_exploitation: ["691"]
+
+# Choix de l'OUTIL (pas des règles fiscales) : seuils des messages d'alerte
+alertes:
+  proximite_seuil_bascule: 0.15         # alerte si le bénéfice est à moins de 15 % du seuil de bascule
+  mois_minimum_projection: 3            # avant fin mars, la projection d'un trimestre est fragile

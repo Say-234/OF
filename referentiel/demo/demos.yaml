@@ -1,0 +1,19 @@
+# Dossiers de démonstration FICTIFS proposés dans la barre latérale.
+# Les balances sont régénérées par : python scripts/generer_demo.py
+dossiers:
+  - nom: "BATI-PLUS SARL — BTP (démo)"
+    fichier: "balance_BATIPLUS_BTP_30-06-2026.xlsx"
+    raison_sociale: "BATI-PLUS SARL"
+    secteur: btp
+    is_n_moins_1: 52000000       # IS 2025, base des acomptes 2026
+    aib: 4000000
+    dotations_a_passer: 45000000
+    deficits: 0
+  - nom: "NOVA SERVICES SA — services (démo)"
+    fichier: "balance_NOVASERVICES_30-06-2026.xlsx"
+    raison_sociale: "NOVA SERVICES SA"
+    secteur: autres
+    is_n_moins_1: 30000000
+    aib: 2000000
+    dotations_a_passer: 20000000
+    deficits: 0
