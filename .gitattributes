@@ -2,3 +2,4 @@
 *.bat text eol=crlf
 *.xlsx binary
 *.xls binary
+*.csv binary
