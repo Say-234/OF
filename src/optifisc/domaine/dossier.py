@@ -94,10 +94,13 @@ class Dossier:
             raise TransitionInterdite(f"passage de « {self.etat.value} » à « {nouvel_etat.value} » non permis")
         return replace(self, etat=nouvel_etat)
 
+    def verifier_modifiable(self) -> None:
+        if self.est_fige:
+            raise DossierFige(f"Dossier « {self.etat.value.replace('_', ' ')} » : il ne peut plus être modifié.")
+
     def modifie(self, **changements) -> "Dossier":
         """Modifie des données. Un dossier calculé repasse « en préparation » (son calcul n'est plus à jour)."""
-        if self.est_fige:
-            raise DossierFige(f"dossier {self.etat.value} : il ne peut plus être modifié")
+        self.verifier_modifiable()
         nouveau = replace(self, **changements)
         if nouveau.etat is EtatDossier.CALCULE:
             nouveau = replace(nouveau, etat=EtatDossier.EN_PREPARATION)

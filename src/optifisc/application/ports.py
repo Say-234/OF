@@ -106,3 +106,10 @@ class ServiceMotsDePasse(Protocol):
     def generer(self) -> str: ...
 
     def probleme(self, mot_de_passe: str) -> str | None: ...             # None si le mot de passe est acceptable
+
+
+# ------------------------------------------------------------------ livrables
+class GenerateurLivrables(Protocol):
+    """Met en forme les données rassemblées par application/livrables.py (DonneesLivrables → [Livrable])."""
+
+    def generer(self, donnees) -> list: ...
