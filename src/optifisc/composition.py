@@ -24,6 +24,7 @@ from optifisc.application.livrables import ServiceLivrables
 from optifisc.application.scenarios import ServiceScenarios
 from optifisc.application.validation import ServiceValidation
 from optifisc.domaine.dossier import Ajustement, CategorieTaux, Hypotheses, Secteur
+from optifisc.domaine.erreurs import AccesRefuse
 from optifisc.domaine.utilisateur import Role, Utilisateur
 from optifisc.infrastructure.corpus import charger_corpus
 from optifisc.infrastructure.horloge import HorlogeSysteme
@@ -64,10 +65,21 @@ class Application:
     agent: ServiceAgent
     mode: str = "cabinet"
     aide_demo: str = ""                     # comptes de démonstration affichés sur l'écran de connexion
+    mot_de_passe_demo: str = ""             # mode démo seulement : connexion en un clic pour la soutenance
 
     @property
     def referentiel(self):
         return self.dependances.referentiel
+
+    def entrer_en_demo(self, role: Role) -> Utilisateur:
+        """Mode démonstration : se connecte avec le compte fictif de ce rôle, sans saisir de mot de passe.
+
+        Refusé hors du mode démo : en cabinet, la connexion passe toujours par e-mail et mot de passe.
+        """
+        if self.mode != "demo" or not self.mot_de_passe_demo:
+            raise AccesRefuse("Connexion rapide réservée à l'instance de démonstration.")
+        email = next(e for e, _, r in COMPTES_DEMO if r is role)
+        return self.comptes.connecter(email, self.mot_de_passe_demo)
 
 
 def fournisseur_ia(usage: str = "ASSISTANT"):
@@ -149,6 +161,7 @@ def initialiser_demonstration(app: Application, dossier_demo: Path) -> None:
                         app.dossiers.saisir(collaborateur, dossier.id, ligne.id_regle, Decimal(0))
                 app.calcul.calculer(collaborateur, dossier.id)
         app.aide_demo = _aide(mot_de_passe)
+        app.mot_de_passe_demo = mot_de_passe
 
 
 def _aide(mot_de_passe: str) -> str:

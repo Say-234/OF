@@ -24,6 +24,10 @@
 
 ## Historique des sessions
 
+### 16/10/2026 — Raccourcis de démonstration et guides
+- Mode démo uniquement (refusés en cabinet, testé) : connexion en un clic par rôle (`Application.entrer_en_demo`), changement de rôle dans la barre latérale, « Tout mettre à néant » sur les retraitements (`ServiceDossiers.saisir_neant_restantes`, chaque saisie reste tracée), session de 4 h.
+- Guides : `docs/09_guide_utilisateur.md` (qui fait quoi au cabinet, circuit d'un dossier, blocages fréquents) et `docs/10_scenario_soutenance.md` (déroulé minute par minute, parades).
+
 ### 16/10/2026 — Revue de design (skill ui-ux-pro-max)
 - Style confirmé par le skill : « tableau de bord dense en données » (analyse financière). Corrections : marge haute réduite (thème `paddingTop`), bandeau démo déplacé en badge dans la barre latérale, points d'attention et liste de contrôle regroupés dans un seul cadre (`composants.liste_de_points`, icône colorée + texte), barre d'avancement dans le tableau de bord (`ProgressColumn`), compteurs sur tous les filtres, noms d'utilisateurs au lieu des e-mails (qui devenaient des liens), libellés d'actions accentués (`composants.action`), écran de connexion centré, en-tête de dossier aligné.
 

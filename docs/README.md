@@ -27,6 +27,8 @@ l'expert-comptable**.
 | 6 | [06_plan_mvp.md](06_plan_mvp.md) | Dans quel ordre construit-on, et comment met-on en service ? | Révisé le 14/10 (calendrier, repli, démo en ligne) : **à relire** D6.7 à D6.9 |
 | 7 | [07_structure_du_code.md](07_structure_du_code.md) | Où vit chaque responsabilité dans le code ? (grille de conformité) | Écarts de construction listés au §5 : **à valider** |
 | 8 | [08_mise_en_service.md](08_mise_en_service.md) | Comment installer, configurer l'IA, mettre en ligne la démo, sauvegarder ? | Rédigé le 16/10/2026 |
+| 9 | [09_guide_utilisateur.md](09_guide_utilisateur.md) | Qui fait quoi pour que l'outil fonctionne au cabinet ? | Rédigé le 16/10/2026 |
+| 10 | [10_scenario_soutenance.md](10_scenario_soutenance.md) | Comment dérouler la démonstration le jour J ? | Rédigé le 16/10/2026 |
 | — | [JOURNAL_DE_BORD.md](JOURNAL_DE_BORD.md) | Où en est le projet ? (à lire en premier à chaque session) | Tenu à jour |
 
 ## Comment valider une section

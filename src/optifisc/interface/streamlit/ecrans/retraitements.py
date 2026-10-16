@@ -49,6 +49,14 @@ def afficher(app, utilisateur, dossier, derniere_balance):
     bandeau_fige(dossier)
     modifiable = peut_modifier(utilisateur, dossier)
     validees = app.validation.regles_validees()
+    if app.mode == "demo" and modifiable and manquantes:
+        with st.container(horizontal=True, vertical_alignment="center"):
+            st.caption(":material/science: Démonstration : répondre « néant » à toutes les saisies restantes "
+                       "(en cabinet, chaque règle s'examine une par une).")
+            if st.button(f"Tout mettre à néant ({manquantes})", icon=":material/done_all:"):
+                if composants.executer(lambda: app.dossiers.saisir_neant_restantes(utilisateur, dossier.id),
+                                       "Saisies restantes mises à néant"):
+                    st.rerun()
 
     categories = {"toutes": "Toutes", **{c.id: c.court for c in ref.categories}}
     with st.container(horizontal=True, vertical_alignment="center"):

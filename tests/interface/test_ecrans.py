@@ -25,11 +25,15 @@ def environnement(tmp_path_factory):
     mp.undo()
 
 
+def bouton_se_connecter(at: AppTest):
+    return next(b for b in at.button if b.label == "Se connecter")
+
+
 def connecte(email: str) -> AppTest:
     at = AppTest.from_file(str(APP), default_timeout=60).run()
     at.text_input[0].input(email)
     at.text_input[1].input(MOT_DE_PASSE)
-    at.button[0].click().run()
+    bouton_se_connecter(at).click().run()
     assert not at.exception, at.exception
     return at
 
@@ -44,7 +48,7 @@ def test_mauvais_mot_de_passe_refuse(environnement):
     at = AppTest.from_file(str(APP), default_timeout=60).run()
     at.text_input[0].input("salim@demo.bj")
     at.text_input[1].input("mauvais")
-    at.button[0].click().run()
+    bouton_se_connecter(at).click().run()
     assert any("incorrect" in e.value for e in at.error)
 
 
@@ -81,3 +85,10 @@ def test_page_utilisateurs_pour_l_administrateur(environnement):
     at.switch_page("app_pages/utilisateurs.py").run()
     assert not at.exception, at.exception
     assert len(at.dataframe) >= 1
+
+
+def test_connexion_rapide_et_changement_de_role_en_demo(environnement):
+    at = AppTest.from_file(str(APP), default_timeout=60).run()
+    at.button(key="demo_expert").click().run()
+    assert not at.exception and at.header[0].value == "Dossiers"
+    assert etat.application().comptes.utilisateur_actif(at.session_state["email"]).role.value == "expert"

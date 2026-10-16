@@ -146,3 +146,17 @@ def test_etapes_du_parcours(app, equipe):
     etapes = {e.id: e for e in app.dossiers.etapes(app.dossiers.ouvrir(salim, dossier_id))}
     assert etapes["balance"].faite and etapes["hypotheses"].faite and etapes["calcul"].faite
     assert etapes["acomptes"].faite and not etapes["leviers"].faite and not etapes["livrer"].faite
+
+
+def test_raccourcis_de_demonstration_refuses_en_cabinet(app, equipe):
+    with pytest.raises(AccesRefuse, match="démonstration"):
+        app.entrer_en_demo(Role.EXPERT)                    # le parcours fixture tourne en mode « cabinet »
+
+
+def test_tout_a_neant_repond_aux_saisies_restantes(app, equipe):
+    salim = equipe["salim"]
+    d = app.dossiers.creer(salim, "TEST", Secteur.AUTRES, CategorieTaux.DROIT_COMMUN, 2026)
+    contenu = (DEMO / "balance_NOVASERVICES_30-06-2026.xlsx").read_bytes()
+    app.balance.confirmer(salim, d.id, app.balance.apercu(salim, d.id, contenu, "n.xlsx", date(2026, 6, 30)))
+    assert app.dossiers.saisir_neant_restantes(salim, d.id) == 23
+    assert app.calcul.resultat(salim, d.id).saisies_manquantes == ()

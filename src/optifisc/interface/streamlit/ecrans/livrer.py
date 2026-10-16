@@ -38,6 +38,8 @@ def afficher(app, utilisateur, dossier, derniere_balance):
         st.caption("Recalculez l'impôt (étape 4) avant de soumettre.")
     elif dossier.etat is EtatDossier.A_VALIDER:
         st.info("Dossier soumis : en attente de la validation de l'expert-comptable.", icon=":material/pending:")
+        if app.mode == "demo" and not peut(utilisateur, "valider_dossier", dossier):
+            st.caption(":material/science: Démonstration : choisissez « Expert » dans la barre latérale pour valider.")
         if peut(utilisateur, "valider_dossier", dossier):
             resultat = app.calcul.resultat(utilisateur, dossier.id)
             if st.button("Valider le dossier", type="primary", icon=":material/verified:"):

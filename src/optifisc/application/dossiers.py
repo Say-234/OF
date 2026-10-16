@@ -156,6 +156,18 @@ class ServiceDossiers:
         self.dep.tracer(utilisateur, "saisie", f"{id_regle} : {texte}", dossier.id)
         return dossier
 
+    def saisir_neant_restantes(self, utilisateur: Utilisateur | None, dossier_id: str) -> int:
+        """Répond « néant » à toutes les règles à saisie encore non renseignées ; renvoie leur nombre.
+
+        Chaque réponse est tracée comme une saisie normale. L'interface ne propose ce raccourci qu'en mode
+        démonstration : en cabinet, chaque règle doit être examinée une par une.
+        """
+        dossier = self.ouvrir(utilisateur, dossier_id)
+        manquantes = self.resultat(dossier).saisies_manquantes
+        for id_regle in manquantes:
+            self.saisir(utilisateur, dossier_id, id_regle, Decimal(0))
+        return len(manquantes)
+
     def journal(self, utilisateur: Utilisateur | None, dossier_id: str | None = None, limite: int = 200) -> list:
         """UC11 : chronologie des événements ; un collaborateur ne voit que ceux de ses dossiers."""
         if dossier_id:

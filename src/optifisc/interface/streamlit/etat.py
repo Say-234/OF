@@ -12,6 +12,7 @@ from optifisc.composition import Application, construire
 from optifisc.domaine.utilisateur import Utilisateur
 
 DUREE_SESSION = timedelta(minutes=30)       # déconnexion après 30 minutes d'inactivité (doc 02, §5.3)
+DUREE_SESSION_DEMO = timedelta(hours=4)     # démonstration : pas de déconnexion pendant la soutenance
 
 
 def _secrets_vers_environnement() -> None:
@@ -37,7 +38,8 @@ def utilisateur() -> Utilisateur | None:
     if not email:
         return None
     derniere = st.session_state.get("derniere_activite")
-    if derniere and datetime.now() - derniere > DUREE_SESSION:
+    duree = DUREE_SESSION_DEMO if application().mode == "demo" else DUREE_SESSION
+    if derniere and datetime.now() - derniere > duree:
         deconnecter()
         st.session_state["session_expiree"] = True
         return None

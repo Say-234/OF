@@ -35,6 +35,16 @@ if utilisateur is not None:
         if app.mode == "demo":
             st.badge("Démonstration · données fictives", color="orange", icon=":material/science:",
                      help="N'importez aucune donnée réelle sur cette instance.")
+            roles = {Role.COLLABORATEUR: "Collaborateur", Role.EXPERT: "Expert", Role.ADMIN: "Admin"}
+            choix = st.segmented_control("Jouer le rôle de", list(roles), format_func=roles.get,
+                                         default=utilisateur.role, key=f"role_demo_{utilisateur.role.value}")
+            if choix and choix is not utilisateur.role:
+                compte = app.entrer_en_demo(choix)
+                dossier_ouvert = etat.dossier_id()
+                etat.connecter(compte)
+                if dossier_ouvert:
+                    etat.ouvrir_dossier(dossier_ouvert, etat.etape())
+                st.rerun()
         st.markdown(f"**{utilisateur.nom}**  \n:gray[{utilisateur.libelle_role}]")
         if st.button("Se déconnecter", icon=":material/logout:", type="tertiary"):
             app.dependances.tracer(utilisateur, "deconnexion")

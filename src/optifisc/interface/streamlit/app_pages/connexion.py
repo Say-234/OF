@@ -1,6 +1,7 @@
 """E01 — Connexion (UC12). E-mail + mot de passe ; blocage après 5 échecs (géré par le cas d'usage)."""
 import streamlit as st
 
+from optifisc.domaine.utilisateur import Role
 from optifisc.interface.streamlit import composants, etat
 
 app = etat.application()
@@ -28,6 +29,18 @@ with centre.container(width=440):
                     st.success(f"Compte créé. Mot de passe initial, affiché une seule fois : **{mot_de_passe}**",
                                icon=":material/key:")
         st.stop()
+
+    if app.mode == "demo" and app.mot_de_passe_demo:
+        st.markdown("**Entrer directement**")
+        with st.container(horizontal=True):
+            for role, libelle in ((Role.COLLABORATEUR, "Collaborateur"), (Role.EXPERT, "Expert-comptable"),
+                                  (Role.ADMIN, "Administrateur")):
+                if st.button(libelle, key=f"demo_{role.value}", icon=":material/login:"):
+                    compte = composants.executer(lambda role=role: app.entrer_en_demo(role))
+                    if compte:
+                        etat.connecter(compte)
+                        st.rerun()
+        st.caption("Ou connectez-vous avec un compte, comme en cabinet :")
 
     with st.form("connexion"):
         email = st.text_input("E-mail", type="email", autocomplete="username", placeholder="prenom.nom@cabinet.bj")
