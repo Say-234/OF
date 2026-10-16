@@ -2,8 +2,12 @@
 from decimal import Decimal
 from pathlib import Path
 
+import yaml
+
 from optifisc.domaine.balance import Balance, LigneBalance
 from optifisc.domaine.dossier import Ajustement, CategorieTaux, Dossier, Hypotheses, Secteur
+from optifisc.domaine.moteur.impot import calculer_is
+from optifisc.infrastructure.lecteur_balance import LecteurBalanceTableur
 from optifisc.infrastructure.referentiel_yaml import ReferentielYaml
 
 M = 1_000_000  # un million de FCFA : rend les cas chiffrés lisibles
@@ -33,6 +37,16 @@ def balance(*lignes) -> Balance:
     return Balance(tuple(LigneBalance(c, lib, Decimal(d), Decimal(k)) for c, lib, d, k in lignes))
 
 
-def D(x) -> Decimal:
-    """Raccourci : D(60 * M) ou D("0.30")."""
-    return Decimal(x) if not isinstance(x, float) else Decimal(str(x))
+DEMOS = {d["raison_sociale"]: d for d in yaml.safe_load((DEMO / "demos.yaml").read_text(encoding="utf-8"))["dossiers"]}
+
+
+def calculer_demo(nom: str):
+    d = DEMOS[nom]
+    balance, _ = LecteurBalanceTableur().lire((DEMO / d["fichier"]).read_bytes(), d["fichier"])
+    hypotheses = Hypotheses(mois_arrete=6, is_n_moins_1=Decimal(d["is_n_moins_1"]), aib_imputable=Decimal(d["aib"]),
+                            deficits_anterieurs=Decimal(d["deficits"]),
+                            ajustements=(Ajustement("6813", "Dotations 2026 à passer",
+                                                    Decimal(d["dotations_a_passer"])),))
+    dossier = Dossier(id=nom, raison_sociale=nom, secteur=Secteur(d["secteur"]), demonstration=True,
+                      hypotheses=hypotheses)
+    return dossier, calculer_is(balance, dossier, REF)

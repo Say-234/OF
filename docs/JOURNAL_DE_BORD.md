@@ -7,11 +7,11 @@
 
 | | |
 |---|---|
-| **Phase** | Conception (documents 00 à 06) — presque terminée |
-| **Jalon en cours** | Aucun : J0 pas encore commencé |
-| **Prochaine action** | Salim relit les décisions restantes (D1.7, D1.8, D3.6 à D3.8, D5.6 à D5.8, D6.7 à D6.9), puis on lance **J0 — Poste de travail** |
-| **Tests** | Pas encore de code |
-| **Retard sur le calendrier** | J0 était prévu le 14/10, il glisse au 15/10 : surveiller (plan de repli au-delà d'un jour) |
+| **Phase** | Construction (l'agent construit, Salim supervise à la fin — décision du 16/10/2026) |
+| **Jalon en cours** | J6 — leviers et acomptes |
+| **Prochaine action** | Terminer J6, puis J7 (persistance SQLite) |
+| **Tests** | 81 verts (`.venv/Scripts/python -m pytest -q`) ; ruff propre |
+| **Retard sur le calendrier** | Rattrapé : J0 à J5 faits le 16/10 |
 
 ## Questions ouvertes
 
@@ -22,6 +22,15 @@
 ---
 
 ## Historique des sessions
+
+### 16/10/2026 — Construction J0 à J5
+- **Décisions** : D1.8 / D3.8 tranchées (pas de Jev, payant) → « Système 1 » maison : `JugeDeterministe` (doc 01, A.4) ; IA générative = modèles gratuits d'OpenRouter. Méthode : l'agent construit, Salim supervise. Structure du code figée : `docs/07_structure_du_code.md`. Python 3.14 (installé).
+- **J0** : git, `pyproject.toml`, `.venv`, `tests/test_architecture.py` (règle des 4 couches vérifiée automatiquement).
+- **J1** : `domaine/montant.py` (Decimal, refus des float, arrondi au franc), `domaine/balance.py` (totaux par préfixe, contrôles).
+- **J2** : `referentiel/2026/*.yaml` (repris de la V2, lus en Decimal exact), `domaine/referentiel.py`, `infrastructure/referentiel_yaml.py` (validation pydantic : une faute de frappe est refusée).
+- **J3** : `infrastructure/lecteur_balance.py` (V2 sans pandas, en Decimal) ; balances de démo dans `referentiel/demo/`.
+- **J4-J5** : `domaine/dossier.py` (cycle de vie), `domaine/moteur/projection.py`, `retraitements.py` (registre de stratégies), `impot.py`. **Jalon de vérité atteint** : BATI-PLUS et NOVA SERVICES donnent exactement les montants de la V2, au franc près (`tests/bout_en_bout/test_demos.py`).
+- **Comment vérifier** : `.venv/Scripts/python -m pytest -q` ; lire `tests/domaine/test_moteur_impot.py` (cas chiffrés commentés) puis `domaine/moteur/impot.py`.
 
 ### 15/10/2026 — Préparation de la reprise multi-agents
 - 10 paquets de skills installés globalement par Salim (`~/.agents/skills`, 129 skills).
