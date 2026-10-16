@@ -37,3 +37,16 @@ def vers_decimal(valeur: Decimal | int | str) -> Decimal:
 def arrondir_fcfa(montant: Decimal) -> Decimal:
     """Arrondit au franc, 0,5 arrondi au-dessus (arrondi commercial)."""
     return montant.quantize(UN_FRANC, rounding=ROUND_HALF_UP)
+
+
+# Écriture des montants DANS LA PISTE D'AUDIT (formules en clair). L'affichage à l'écran
+# a ses propres fonctions dans interface/streamlit/formats.py.
+def en_texte(montant: Decimal) -> str:
+    """1500000 → « 1 500 000 FCFA » (arrondi au franc, espace comme séparateur de milliers)."""
+    return f"{arrondir_fcfa(montant):,.0f}".replace(",", " ") + " FCFA"
+
+
+def en_pourcentage(taux: Decimal) -> str:
+    """Decimal("0.30") → « 30 % » ; Decimal("0.001") → « 0,1 % »."""
+    texte = f"{(taux * 100).normalize():f}".replace(".", ",")
+    return f"{texte} %"

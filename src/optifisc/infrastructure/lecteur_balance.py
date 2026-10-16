@@ -12,6 +12,7 @@ comptes de regroupement (« 60 » quand « 601100 » existe), pour ne rien compt
 """
 import csv
 import io
+import math
 import re
 import unicodedata
 from decimal import Decimal, InvalidOperation
@@ -76,7 +77,7 @@ def _grilles_xlsx(contenu: bytes) -> list[tuple[str, list[list], str]]:
     from openpyxl import load_workbook
     try:
         classeur = load_workbook(io.BytesIO(contenu), read_only=True, data_only=True)
-    except Exception as exc:  # noqa: BLE001 — tout échec de lecture devient un message clair
+    except Exception as exc:  # tout échec de lecture devient un message clair
         raise BalanceIllisible("Le fichier n'est pas un classeur Excel lisible (endommagé, protégé par mot de "
                                "passe ou d'un autre format). Enregistrez-le en .xlsx, ou exportez la balance "
                                "en CSV depuis le logiciel comptable.") from exc
@@ -87,7 +88,7 @@ def _grilles_xls(contenu: bytes) -> list[tuple[str, list[list], str]]:
     import xlrd
     try:
         classeur = xlrd.open_workbook(file_contents=contenu)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         raise BalanceIllisible("Fichier .xls illisible : enregistrez-le en .xlsx ou exportez en CSV.") from exc
     return [(f.name, [f.row_values(i) for i in range(f.nrows)], "") for f in classeur.sheets()]
 
@@ -107,7 +108,12 @@ def _est_mot_compte(c: str) -> bool:
 
 def _classer(libelle: str) -> tuple[str | None, str | None]:
     """(sens, phase) d'une colonne : sens = D / C / None ; phase = ouverture / mouvements / cloture / None."""
-    sens = "D" if re.search(r"\bdebit(eur)?s?\b", libelle) else "C" if re.search(r"\bcredit(eur)?s?\b", libelle) else None
+    if re.search(r"\bdebit(eur)?s?\b", libelle):
+        sens = "D"
+    elif re.search(r"\bcredit(eur)?s?\b", libelle):
+        sens = "C"
+    else:
+        sens = None
     phase = next((p for p, motif in PHASES if re.search(motif, libelle)), None)
     return sens, phase
 
@@ -139,7 +145,7 @@ def _decrire_colonnes(grille: list[list], h: int) -> tuple[dict[int, str], int]:
     else:
         return dict(enumerate(ligne)), 1
     groupe, libelles = "", {}
-    for j, (c, b) in enumerate(zip(haut, bas)):
+    for j, (c, b) in enumerate(zip(haut, bas, strict=True)):
         if c:
             groupe = c
         elif not b:
@@ -173,7 +179,7 @@ def nombre(v) -> Decimal | None:
     if isinstance(v, int):
         return Decimal(v)
     if isinstance(v, float):
-        return ZERO if v != v else Decimal(repr(v))      # v != v : NaN ; repr donne l'écriture la plus courte
+        return ZERO if math.isnan(v) else Decimal(repr(v))  # repr donne l'écriture la plus courte
     s = str(v).strip()
     if s.lower() in ("", "-", "—", "nan", "none"):
         return ZERO
@@ -240,7 +246,7 @@ def _normaliser(grille: list[list]) -> tuple[list[LigneBalance], dict]:
                 totaux += 1                                 # ligne de total sans numéro de compte
             continue
 
-        def lire(j):
+        def lire(j, rang=rang, i=i):
             x = nombre(rang[j])
             if x is None:
                 illisibles.append(f"ligne {i} : « {rang[j]} »")
@@ -263,7 +269,7 @@ def _normaliser(grille: list[list]) -> tuple[list[LigneBalance], dict]:
 
     # comptes de regroupement : « 60 » ou « 601 » quand un compte plus détaillé existe
     codes = sorted({ligne[0] for ligne in lignes})
-    regroupements = {c for c, suivant in zip(codes, codes[1:]) if suivant.startswith(c)}
+    regroupements = {c for c, suivant in zip(codes, codes[1:], strict=False) if suivant.startswith(c)}
     lignes = [ligne for ligne in lignes if ligne[0] not in regroupements]
 
     signe_inverse = False

@@ -30,5 +30,9 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 
 [tool.ruff]
-line-length = 110
+line-length = 120
 src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Règles retenues : erreurs (E, F), avertissements (W), ordre des imports (I), pièges courants (B)
+select = ["E", "F", "W", "I", "B"]
