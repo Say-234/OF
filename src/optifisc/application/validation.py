@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from optifisc.domaine.dossier import Dossier, EtatDossier
 from optifisc.domaine.erreurs import DonneeInvalide, EtapeIncomplete
+from optifisc.domaine.montant import en_texte
 from optifisc.domaine.referentiel import RegleRetraitement, Statut
 from optifisc.domaine.resultat import ResultatFiscal
 from optifisc.domaine.utilisateur import Utilisateur
@@ -115,7 +116,7 @@ class ServiceValidation:
         dossier = dossier.vers(EtatDossier.VALIDE)
         self.dep.dossiers.enregistrer(dossier)
         mention = " (préparé et validé par la même personne)" if meme_personne else ""
-        self.dep.tracer(utilisateur, "dossier_valide", f"IS dû {resultat.is_du} FCFA{mention}", dossier.id)
+        self.dep.tracer(utilisateur, "dossier_valide", f"IS dû {en_texte(resultat.is_du)}{mention}", dossier.id)
         return dossier
 
     def renvoyer(self, utilisateur: Utilisateur | None, dossier_id: str, commentaire: str) -> Dossier:

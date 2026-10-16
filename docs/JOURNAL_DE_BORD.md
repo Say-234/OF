@@ -8,9 +8,9 @@
 | | |
 |---|---|
 | **Phase** | Construction (l'agent construit, Salim supervise à la fin — décision du 16/10/2026) |
-| **Jalon en cours** | J11 — assistant CGI (BM25 + OpenRouter) et agent de propositions |
-| **Prochaine action** | Construire J11, puis J12 (recette, mise en ligne, `lancer.bat`) |
-| **Tests** | 134 verts (`.venv/Scripts/python -m pytest -q`, ~45 s) ; ruff propre |
+| **Jalon en cours** | Construction terminée (J0 à J12) : supervision et recette par Salim |
+| **Prochaine action** | Salim : vérifier la conformité (doc 07, §5 écarts), tester avec une vraie clé OpenRouter, recette sur une balance réelle anonymisée, mise en ligne (doc 08) |
+| **Tests** | 157 verts (`.venv/Scripts/python -m pytest -q`, ~1 min) ; ruff propre |
 | **Lancer l'application** | `.venv/Scripts/python -m streamlit run src/optifisc/interface/streamlit/app.py` (mode cabinet) ; mode démo : variables `OPTIFISC_MODE=demo` et `OPTIFISC_MDP_DEMO=...` |
 | **Retard sur le calendrier** | Aucun : J0 à J10 faits le 16/10 (en avance) |
 
@@ -23,6 +23,12 @@
 ---
 
 ## Historique des sessions
+
+### 16/10/2026 — Construction J11 et J12
+- **J11** : `infrastructure/corpus.py`, `recherche_bm25.py` (10 questions étalons sur 10 dans les 5 premiers), `openrouter.py` (modèle gratuit en réglage), `ia_desactivee.py` ; `application/assistant.py` (pare-feu : montants et noms de clients bloqués) ; `application/agent/` : profil pseudonymisé, juge déterministe (seuil de confiance 0,70), boucle JSON sans framework (10 tours, 90 s), outils, service (article inexistant rejeté, nombres de l'IA masqués, gain recalculé par le moteur, dossier réel refusé par défaut). Testé avec une fausse IA scriptée.
+- **Choix à connaître** : l'agent n'utilise pas l'« appel d'outils » natif (beaucoup de modèles gratuits ne le gèrent pas) mais un protocole JSON lisible, compatible avec tout modèle.
+- **J12** : `lancer.bat`, `sauvegarder.bat` + `scripts/sauvegarder.py` (API de sauvegarde SQLite), `requirements.txt` (Streamlit Community Cloud), secrets de l'hébergeur lus comme variables d'environnement, `docs/08_mise_en_service.md`.
+- **Non vérifié faute de clé** : un appel réel à OpenRouter (à faire par Salim, doc 08 §2).
 
 ### 16/10/2026 — Construction J6 à J10
 - **J6** : `domaine/moteur/leviers.py` (L01 à L05, simulation avant/après), `acomptes.py` (échéancier, réduction, crédit d'impôt).

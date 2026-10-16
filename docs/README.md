@@ -25,6 +25,9 @@ l'expert-comptable**.
 | 4 | [04_parcours_utilisateur.md](04_parcours_utilisateur.md) | Dans quel ordre l'utilisateur passe-t-il d'un écran à l'autre ? | **Validé** le 14/10/2026 |
 | 5 | [05_interfaces_et_flux.md](05_interfaces_et_flux.md) | À quoi ressemble chaque écran et comment circulent les données ? | Révisé le 14/10 (maquettes refaites) : **à relire** D5.6 à D5.8 |
 | 6 | [06_plan_mvp.md](06_plan_mvp.md) | Dans quel ordre construit-on, et comment met-on en service ? | Révisé le 14/10 (calendrier, repli, démo en ligne) : **à relire** D6.7 à D6.9 |
+| 7 | [07_structure_du_code.md](07_structure_du_code.md) | Où vit chaque responsabilité dans le code ? (grille de conformité) | Écarts de construction listés au §5 : **à valider** |
+| 8 | [08_mise_en_service.md](08_mise_en_service.md) | Comment installer, configurer l'IA, mettre en ligne la démo, sauvegarder ? | Rédigé le 16/10/2026 |
+| — | [JOURNAL_DE_BORD.md](JOURNAL_DE_BORD.md) | Où en est le projet ? (à lire en premier à chaque session) | Tenu à jour |
 
 ## Comment valider une section
 
@@ -32,7 +35,7 @@ l'expert-comptable**.
 2. Répondre aux points de la rubrique **« Décisions à valider »** en fin de document (oui / non / à modifier).
 3. Une fois les réponses intégrées, passer le statut à « Validé » dans le tableau ci-dessus, avec la date.
 
-On ne passe au code qu'une fois les six sections validées. Toute décision changée plus tard est notée
+On ne passait au code qu'une fois les six sections validées (fait le 16/10/2026). Toute décision changée plus tard est notée
 dans le document concerné (rubrique « Historique des décisions »), pour garder la trace du raisonnement :
 c'est utile pour le mémoire et pour la soutenance.
 

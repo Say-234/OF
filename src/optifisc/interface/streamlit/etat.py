@@ -3,6 +3,7 @@
 Jamais de résultat de calcul en session : il est recalculé à chaque affichage depuis la base,
 ce qui évite d'afficher un résultat périmé.
 """
+import os
 from datetime import datetime, timedelta
 
 import streamlit as st
@@ -13,9 +14,21 @@ from optifisc.domaine.utilisateur import Utilisateur
 DUREE_SESSION = timedelta(minutes=30)       # déconnexion après 30 minutes d'inactivité (doc 02, §5.3)
 
 
+def _secrets_vers_environnement() -> None:
+    """Hébergement en ligne : les réglages (clé d'API, mode, mot de passe de démo) sont dans les « secrets »
+    de la plateforme. On les recopie en variables d'environnement, lues par composition.py comme le fichier .env."""
+    try:
+        for cle, valeur in st.secrets.items():
+            if isinstance(valeur, str):
+                os.environ.setdefault(cle, valeur)
+    except Exception:  # pas de fichier de secrets en local : c'est le cas normal
+        pass
+
+
 @st.cache_resource
 def application() -> Application:
     """Une seule instance pour tout le serveur : référentiel chargé et validé une fois."""
+    _secrets_vers_environnement()
     return construire()
 
 

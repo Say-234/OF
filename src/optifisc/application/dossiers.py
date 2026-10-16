@@ -7,6 +7,7 @@ from decimal import Decimal
 
 from optifisc.domaine.dossier import CategorieTaux, Dossier, EtatDossier, Hypotheses, Secteur
 from optifisc.domaine.erreurs import DonneeInvalide, EtapeIncomplete
+from optifisc.domaine.montant import en_texte
 from optifisc.domaine.moteur.impot import calculer_is
 from optifisc.domaine.resultat import ResultatFiscal
 from optifisc.domaine.utilisateur import Role, Utilisateur
@@ -151,7 +152,7 @@ class ServiceDossiers:
             saisies[id_regle] = montant
         dossier = dossier.modifie(saisies=saisies)
         self.dep.dossiers.enregistrer(dossier)
-        texte = "non renseigné" if montant is None else ("néant" if montant == 0 else f"{montant} FCFA")
+        texte = "non renseigné" if montant is None else ("néant" if montant == 0 else en_texte(montant))
         self.dep.tracer(utilisateur, "saisie", f"{id_regle} : {texte}", dossier.id)
         return dossier
 

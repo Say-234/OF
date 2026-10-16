@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from optifisc.domaine.dossier import Dossier
 from optifisc.domaine.erreurs import DonneeInvalide
+from optifisc.domaine.montant import en_texte
 from optifisc.domaine.moteur import leviers as L
 from optifisc.domaine.referentiel import Referentiel
 from optifisc.domaine.resultat import ResultatFiscal
@@ -78,9 +79,9 @@ class ServiceScenarios:
         simulation = self.simuler(utilisateur, dossier_id, choix)
         scenario = Scenario(f"{dossier_id}-{secrets.token_hex(3)}", dossier_id, nom, tuple(choix), simulation.gain_is)
         self.dep.scenarios.enregistrer(scenario)
+        leviers = ", ".join(c.id_levier for c in choix)
         self.dep.tracer(utilisateur, "scenario_enregistre",
-                        f"scénario {nom} : {', '.join(c.id_levier for c in choix)} ; gain {simulation.gain_is}",
-                        dossier_id)
+                        f"scénario {nom} : {leviers} ; gain {en_texte(simulation.gain_is)}", dossier_id)
         return scenario
 
     def supprimer(self, utilisateur: Utilisateur | None, dossier_id: str, scenario_id: str) -> None:

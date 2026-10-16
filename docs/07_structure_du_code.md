@@ -142,3 +142,21 @@ OF/
 | J9-J10 | `application/` (autres cas d'usage), `interface/streamlit/`, `infrastructure/livrables/`, `composition.py` |
 | J11 | `infrastructure/corpus.py`, `recherche_bm25.py`, `openrouter.py`, `ia_desactivee.py`, `application/assistant.py`, `application/agent/` |
 | J12 | `lancer.bat`, `scripts/`, mise en ligne |
+
+## 5. Écarts constatés pendant la construction (16/10/2026) — à valider par Salim
+
+| Prévu (§2) | Construit | Raison |
+|---|---|---|
+| `interface/streamlit/pages/` | `interface/streamlit/app_pages/` | Recommandation de Streamlit 1.66 : `pages/` déclenche l'ancienne découverte automatique des pages. |
+| Un fichier par écran dans `pages/` | `app_pages/` (écrans de navigation) + `ecrans/` (un module par étape du dossier, E05 à E13, et le panneau de l'agent) | Les étapes du dossier partagent l'en-tête et les onglets : une seule page `dossier.py` les aiguille. |
+| `interface/streamlit/composants.py`, `formats.py`, `etat.py` | Identiques | — |
+| — | `application/dependances.py` | Regroupe les ports donnés aux cas d'usage (rempli par `composition.py`). |
+| — | `domaine/journal.py` (événement d'audit), `domaine/scenario.py` | Objets du domaine apparus avec la persistance et UC03. |
+| `domaine/proposition.py` | + `Article`, `ArticleTrouve`, `ReponseAssistant` | Les objets de l'assistant et de l'agent sont regroupés. |
+| `application/agent/` (profil, outils, boucle, juge) | + `service.py` | Le service applique les garde-fous et enregistre les décisions. |
+| `infrastructure/livrables/` (excel, word) | + `generateur.py` | Implémente le port `GenerateurLivrables` (choisit les fichiers à produire). |
+| `application/comptes.py` : attribution des dossiers | Déplacée dans `application/dossiers.py` | Une seule méthode d'attribution, à côté des autres cas d'usage des dossiers. |
+| — | `lancer.bat`, `sauvegarder.bat`, `requirements.txt`, `scripts/captures.py`, `scripts/sauvegarder.py`, `docs/08_mise_en_service.md` | Jalon J12 (mise en service). |
+| — | `tests/interface/` | Test de fumée de chaque écran (AppTest, sans navigateur). |
+
+La règle de dépendance (§1) est inchangée et vérifiée par `tests/test_architecture.py`.

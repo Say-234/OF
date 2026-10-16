@@ -2,6 +2,7 @@
 from decimal import Decimal
 
 from optifisc.domaine.dossier import Dossier, EtatDossier
+from optifisc.domaine.montant import en_texte
 from optifisc.domaine.moteur.acomptes import Echeancier, echeancier
 from optifisc.domaine.resultat import ResultatFiscal
 from optifisc.domaine.utilisateur import Utilisateur
@@ -29,7 +30,8 @@ class ServiceCalcul:
             self.dep.dossiers.enregistrer(dossier)
         self._mettre_a_jour_resume(dossier, resultat)
         self.dep.tracer(utilisateur, "calcul_effectue",
-                        f"IS dû {resultat.is_du} FCFA ({resultat.regime}), résultat fiscal {resultat.resultat_fiscal}",
+                        f"IS dû {en_texte(resultat.is_du)} ({resultat.regime}), résultat fiscal "
+                        f"{en_texte(resultat.resultat_fiscal)}",
                         dossier.id)
         return resultat
 

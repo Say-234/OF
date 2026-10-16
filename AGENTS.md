@@ -114,7 +114,7 @@ est absent, applique le résumé de la colonne de droite.
 - `dispatching-parallel-agents`, `subagent-driven-development`, `using-git-worktrees` : le travail est séquentiel et pédagogique ; pas de sous-agents sauf demande explicite de Salim.
 - Les skills de marketing, de design graphique ou de réseaux sociaux : hors sujet.
 
-## 8. Commandes utiles (à compléter au jalon J0)
+## 8. Commandes utiles
 
 ```bash
 # activer l'environnement (Windows, Git Bash)
@@ -123,6 +123,10 @@ source .venv/Scripts/activate
 python -m pytest -q
 # style
 ruff check .
-# lancer l'application (à partir de J9)
-streamlit run src/optifisc/interface/streamlit/app.py
+# lancer l'application
+python -m streamlit run src/optifisc/interface/streamlit/app.py
+# mode démonstration (base fictive recréée à chaque démarrage)
+OPTIFISC_MODE=demo OPTIFISC_MDP_DEMO=... python -m streamlit run src/optifisc/interface/streamlit/app.py
+# captures d'écran (application lancée)
+python scripts/captures.py --url http://localhost:8501 --mot-de-passe ...
 ```

@@ -14,20 +14,22 @@ au Bénin (CGI 2026). Prototype du mémoire DECOFI.
 ## Installation (Windows)
 
 Prérequis : Python 3.12 ou plus récent ([python.org](https://www.python.org/downloads/), cocher « Add to PATH »).
+Double-cliquer sur **`lancer.bat`** : il installe tout au premier lancement puis ouvre l'application.
+Mise en service détaillée (cabinet, IA, démonstration en ligne, sauvegardes) : [`docs/08_mise_en_service.md`](docs/08_mise_en_service.md).
+
+Pour développer :
 
 ```bat
-cd OF
 py -m venv .venv
 .venv\Scripts\python -m pip install -e ".[dev]"
 copy .env.exemple .env
 ```
-
-Puis, dans `.env`, choisir le mode et, si l'IA est utilisée, coller la clé OpenRouter.
 
 ## Commandes
 
 ```bat
 .venv\Scripts\python -m pytest -q          :: lancer les tests
 .venv\Scripts\python -m ruff check .       :: vérifier le style
-lancer.bat                                  :: lancer l'application
+lancer.bat                                  :: lancer l'application (http://localhost:8501)
+sauvegarder.bat E:\OptiFisc                  :: sauvegarder la base du cabinet
 ```
