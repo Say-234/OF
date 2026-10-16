@@ -25,9 +25,10 @@ def _livrables(app, utilisateur, dossier, definitif: bool):
 def afficher(app, utilisateur, dossier, derniere_balance):
     composants.entete("Livrer", "Soumettre le dossier à l'expert-comptable, puis produire la note de pilotage, le "
                                 "dossier de calcul et, le cas échéant, la lettre au DGI.")
-    st.subheader("Liste de contrôle avant soumission", anchor=False)
-    for point in app.validation.liste_de_controle(dossier):
-        composants.badge(point.libelle, "fait" if point.respecte else "a_faire")
+    controles = app.validation.liste_de_controle(dossier)
+    faits = sum(p.respecte for p in controles)
+    composants.liste_de_points([("fait" if p.respecte else "a_faire", p.libelle) for p in controles],
+                               f"Liste de contrôle avant soumission — {faits} / {len(controles)}")
 
     if dossier.etat is EtatDossier.CALCULE and peut(utilisateur, "soumettre_dossier", dossier):
         if st.button("Soumettre à l'expert-comptable", type="primary", icon=":material/send:"):

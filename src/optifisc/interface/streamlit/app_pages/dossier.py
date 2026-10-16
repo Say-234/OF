@@ -40,12 +40,12 @@ for e in etapes:
     libelles[e.id] = f"{':material/check: ' if e.faite else ''}{e.numero} {e.libelle}"
 
 composants.entete_dossier(dossier, app.referentiel.parametres.libelles_secteur[dossier.secteur.value].split(" (")[0],
-                          derniere_balance[2] if derniere_balance else None)
+                          derniere_balance[2] if derniere_balance else None,
+                          composants.nom(app, dossier.responsable))
 if "etape" not in st.session_state or st.session_state["etape"] not in ECRANS:
     st.session_state["etape"] = "synthese"
 choix = st.segmented_control("Étape du dossier", list(ECRANS), format_func=libelles.get, key="etape",
                              required=True, label_visibility="collapsed")
-st.divider()
 
 etape = next((e for e in etapes if e.id == choix), None)
 if etape is not None and not etape.accessible:

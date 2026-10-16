@@ -13,10 +13,6 @@ st.set_page_config(page_title="OptiFisc", page_icon=":material/account_balance:"
 app = etat.application()
 utilisateur = etat.utilisateur()
 
-if app.mode == "demo":
-    st.warning("Instance de démonstration : dossiers fictifs uniquement. N'importez aucune donnée réelle.",
-               icon=":material/science:")
-
 if utilisateur is None:
     page = st.navigation([st.Page("app_pages/connexion.py", title="Connexion", icon=":material/login:")],
                          position="hidden")
@@ -36,6 +32,9 @@ else:
 
 if utilisateur is not None:
     with st.sidebar:
+        if app.mode == "demo":
+            st.badge("Démonstration · données fictives", color="orange", icon=":material/science:",
+                     help="N'importez aucune donnée réelle sur cette instance.")
         st.markdown(f"**{utilisateur.nom}**  \n:gray[{utilisateur.libelle_role}]")
         if st.button("Se déconnecter", icon=":material/logout:", type="tertiary"):
             app.dependances.tracer(utilisateur, "deconnexion")

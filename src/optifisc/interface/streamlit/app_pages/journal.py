@@ -13,10 +13,10 @@ if etat.dossier_id():
                                   label_visibility="collapsed")
 evenements = composants.executer(lambda: app.dossiers.journal(
     utilisateur, etat.dossier_id() if portee == "Dossier ouvert" else None)) or []
-actions = sorted({e.action for e in evenements})
-filtre = st.multiselect("Types d'action", actions, placeholder="Toutes les actions")
+actions = sorted({e.action for e in evenements}, key=composants.action)
+filtre = st.multiselect("Types d'action", actions, format_func=composants.action, placeholder="Toutes les actions")
 lignes = [{"Date": formats.horodatage(e.quand), "Utilisateur": e.utilisateur or "système", "Rôle": e.role,
-           "Dossier": e.dossier_id, "Action": e.action.replace("_", " "), "Détail": e.detail,
+           "Dossier": e.dossier_id, "Action": composants.action(e.action), "Détail": e.detail,
            "Référentiel": e.version_referentiel} for e in evenements if not filtre or e.action in filtre]
 if lignes:
     st.dataframe(lignes, hide_index=True, alt="Journal d'audit")

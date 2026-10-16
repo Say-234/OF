@@ -5,9 +5,14 @@ from optifisc.interface.streamlit import composants, etat
 
 app = etat.application()
 
-with st.container(width=440):
+centre = st.container(horizontal=True, horizontal_alignment="center")
+with centre.container(width=440):
+    st.space("medium")
     st.header("OptiFisc", anchor=False)
-    st.caption("Pilotage de l'impôt sur les sociétés · CGI Bénin 2026")
+    st.caption("Pilotage de l'impôt sur les sociétés en cours d'exercice · CGI Bénin 2026")
+    if app.mode == "demo":
+        st.warning("Instance de démonstration : dossiers fictifs uniquement. N'importez aucune donnée réelle.",
+                   icon=":material/science:")
     if st.session_state.pop("session_expiree", False):
         st.info("Session expirée après 30 minutes d'inactivité : reconnectez-vous.", icon=":material/schedule:")
 

@@ -24,6 +24,9 @@
 
 ## Historique des sessions
 
+### 16/10/2026 — Revue de design (skill ui-ux-pro-max)
+- Style confirmé par le skill : « tableau de bord dense en données » (analyse financière). Corrections : marge haute réduite (thème `paddingTop`), bandeau démo déplacé en badge dans la barre latérale, points d'attention et liste de contrôle regroupés dans un seul cadre (`composants.liste_de_points`, icône colorée + texte), barre d'avancement dans le tableau de bord (`ProgressColumn`), compteurs sur tous les filtres, noms d'utilisateurs au lieu des e-mails (qui devenaient des liens), libellés d'actions accentués (`composants.action`), écran de connexion centré, en-tête de dossier aligné.
+
 ### 16/10/2026 — Modèles gratuits OpenRouter
 - Consigne de Salim : **uniquement des modèles gratuits**. Appliquée dans le code : `infrastructure/openrouter.py` refuse tout modèle sans suffixe `:free`, avant tout appel (testé).
 - Un modèle par usage : assistant `google/gemma-4-31b-it:free`, agent `nvidia/nemotron-3-super-120b-a12b:free` (identifiants vérifiés dans le catalogue public OpenRouter). Voir doc 08, §2.

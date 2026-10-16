@@ -56,38 +56,32 @@ def afficher(app, utilisateur, dossier, derniere_balance):
         st.metric("Gain du scénario retenu", formats.montant(retenu.gain_is, unite=True) if retenu else "—",
                   border=True, help=f"Scénario {retenu.nom}" if retenu else "Aucun scénario retenu")
 
-    st.subheader("Points d'attention", anchor=False)
+    # Points d'attention regroupés dans un seul cadre (une ligne chacun) plutôt qu'une pile d'encadrés colorés
     non_validees = app.validation.regles_non_validees_utilisees(resultat)
     renvoi = app.dependances.donnees.lire(dossier.id, "renvoi")
-    points = 0
+    points = []
     if renvoi and dossier.etat is EtatDossier.EN_PREPARATION:
-        st.warning(f"Renvoyé par {renvoi['par']} : {renvoi['commentaire']}", icon=":material/reply:")
-        points += 1
+        points.append(("risque", f"Renvoyé par {composants.nom(app, renvoi['par'])} : {renvoi['commentaire']}"))
     if non_validees:
         references = ", ".join(r.split("_")[0] for r in non_validees)
-        st.warning(f"{len(non_validees)} règle(s) encore « à valider » par le cabinet utilisées : {references}.",
-                   icon=":material/rule:")
-        points += 1
+        points.append(("a_faire", f"{len(non_validees)} règle(s) encore « à valider » par le cabinet utilisées : "
+                                  f"{references}"))
     for alerte in resultat.alertes:
-        if alerte.niveau is Niveau.ATTENTION:
-            st.warning(alerte.message, icon=":material/warning:")
-        else:
-            st.info(alerte.message, icon=":material/info:")
-        points += 1
+        points.append(("a_faire" if alerte.niveau is Niveau.ATTENTION else "info", alerte.message))
     ech = app.calcul.echeancier(utilisateur, dossier.id)
     if ech.recommandation:
-        st.info(f"Réduction d'acompte possible : demande à déposer avant le "
-                f"{formats.jour(ech.recommandation.deposer_avant)}.", icon=":material/payments:")
-        points += 1
-    if points == 0:
-        composants.badge("Aucun point d'attention", "fait")
-
-    st.subheader("Derniers événements", anchor=False)
-    for evenement in app.dossiers.journal(utilisateur, dossier.id, 3):
-        action = evenement.action.replace("_", " ")
-        st.caption(f"{formats.horodatage(evenement.quand)} · {evenement.utilisateur} · {action}"
-                   + (f" — {evenement.detail}" if evenement.detail else ""))
-    st.page_link("app_pages/journal.py", label="Journal complet", icon=":material/history:")
+        points.append(("info", f"Réduction d'acompte possible : demande à déposer avant le "
+                               f"{formats.jour(ech.recommandation.deposer_avant)}"))
+    gauche, droite = st.columns([3, 2], gap="medium")
+    with gauche:
+        composants.liste_de_points(points or [("fait", "Aucun point d'attention")], "Points d'attention")
+    with droite:
+        with st.container(border=True):
+            st.markdown("**Derniers événements**")
+            for evenement in app.dossiers.journal(utilisateur, dossier.id, 4):
+                st.caption(f"{formats.horodatage(evenement.quand)} · {composants.nom(app, evenement.utilisateur)}"
+                           f"  \n{composants.action(evenement.action)}")
+            st.page_link("app_pages/journal.py", label="Journal complet", icon=":material/history:")
 
     if dossier.etat is EtatDossier.A_VALIDER and peut(utilisateur, "valider_dossier", dossier):
         with st.container(horizontal=True, horizontal_alignment="right"):

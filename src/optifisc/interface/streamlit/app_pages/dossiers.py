@@ -44,11 +44,14 @@ if not resumes:
     st.stop()
 
 compte = {e: sum(r.dossier.etat is e for r in resumes) for e in EtatDossier}
-filtres = {"Tous": None, f"À valider ({compte[EtatDossier.A_VALIDER]})": {EtatDossier.A_VALIDER},
+groupes = {"À valider": {EtatDossier.A_VALIDER},
            "En préparation": {EtatDossier.BROUILLON, EtatDossier.EN_PREPARATION, EtatDossier.CALCULE},
            "Validés et livrés": {EtatDossier.VALIDE, EtatDossier.LIVRE}}
+filtres = {f"Tous ({len(resumes)})": None,
+           **{f"{nom} ({sum(compte[e] for e in etats)})": etats for nom, etats in groupes.items()}}
 with st.container(horizontal=True, vertical_alignment="bottom"):
-    choix = st.segmented_control("Filtrer par état", list(filtres), default="Tous", label_visibility="collapsed")
+    choix = st.segmented_control("Filtrer par état", list(filtres), default=list(filtres)[0], required=True,
+                                 label_visibility="collapsed")
     recherche = st.text_input("Rechercher un client", placeholder="Rechercher un client",
                               label_visibility="collapsed", icon=":material/search:", width=280)
 
@@ -62,16 +65,20 @@ lignes = [{
     "IS prévisionnel (FCFA)": formats.montant(r.is_du) if r.is_du is not None else "—",
     "Régime": r.regime or "—",
     "État": composants.ETATS[r.dossier.etat][0],
-    "Étapes": f"{r.etapes_faites}/7",
+    "Avancement": r.etapes_faites,
     "Prochaine échéance": r.prochaine_echeance or "—",
-    **({} if utilisateur.role is Role.COLLABORATEUR else {"Responsable": r.dossier.responsable}),
+    **({} if utilisateur.role is Role.COLLABORATEUR else {"Responsable": composants.nom(app, r.dossier.responsable)}),
 } for r in visibles]
 # Clé renouvelée après chaque ouverture : sinon la ligne resterait sélectionnée au retour sur cette page.
 generation = st.session_state.setdefault("generation_tableau_dossiers", 0)
 colonne_is = "IS prévisionnel (FCFA)"
 evenement = st.dataframe(lignes, hide_index=True, on_select="rerun", selection_mode="single-row",
                          key=f"tableau_dossiers_{generation}", alt="Liste des dossiers",
-                         column_config={colonne_is: composants.colonne_montant(colonne_is)})
+                         column_config={colonne_is: composants.colonne_montant(colonne_is),
+                                        "Arrêté": st.column_config.TextColumn(width="small"),
+                                        "Prochaine échéance": st.column_config.TextColumn(width="large"),
+                                        "Avancement": st.column_config.ProgressColumn(
+                                            "Avancement", min_value=0, max_value=7, format="%d / 7 étapes")})
 if evenement.selection.rows:
     st.session_state["generation_tableau_dossiers"] = generation + 1
     etat.ouvrir_dossier(visibles[evenement.selection.rows[0]].dossier.id)
