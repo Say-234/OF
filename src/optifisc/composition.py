@@ -115,6 +115,11 @@ def initialiser_demonstration(app: Application, dossier_demo: Path) -> None:
                 deficits_anterieurs=Decimal(d["deficits"]),
                 ajustements=(Ajustement("6813", "Dotations aux amortissements 2026 à passer",
                                         Decimal(d["dotations_a_passer"])),)))
+            if d.get("preparer_jusqu_au_calcul"):        # un dossier prêt à montrer leviers, acomptes, livrables
+                for ligne in app.calcul.resultat(collaborateur, dossier.id).retraitements:
+                    if not ligne.renseignee:
+                        app.dossiers.saisir(collaborateur, dossier.id, ligne.id_regle, Decimal(0))
+                app.calcul.calculer(collaborateur, dossier.id)
         app.aide_demo = _aide(mot_de_passe)
 
 

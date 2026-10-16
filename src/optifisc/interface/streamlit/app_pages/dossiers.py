@@ -3,6 +3,7 @@ import streamlit as st
 
 from optifisc.application.autorisation import peut
 from optifisc.domaine.dossier import CategorieTaux, EtatDossier, Secteur
+from optifisc.domaine.utilisateur import Role
 from optifisc.interface.streamlit import composants, etat, formats
 
 app = etat.application()
@@ -30,13 +31,11 @@ def nouveau_dossier():
                 st.switch_page("app_pages/dossier.py")
 
 
-with st.container(horizontal=True, vertical_alignment="bottom"):
-    with st.container():
-        composants.entete("Dossiers", f"Dossiers IS de l'exercice {app.referentiel.millesime}. "
-                                      "Cliquez sur une ligne pour ouvrir le dossier.")
-    if peut(utilisateur, "creer_dossier"):
-        if st.button("Nouveau dossier", icon=":material/add:", type="primary"):
-            nouveau_dossier()
+actions = composants.entete("Dossiers", f"Dossiers IS de l'exercice {app.referentiel.millesime}. "
+                                        "Cliquez sur une ligne pour ouvrir le dossier.")
+if peut(utilisateur, "creer_dossier"):
+    if actions.button("Nouveau dossier", icon=":material/add:", type="primary"):
+        nouveau_dossier()
 
 resumes = app.dossiers.lister(utilisateur)
 if not resumes:
@@ -65,7 +64,7 @@ lignes = [{
     "État": composants.ETATS[r.dossier.etat][0],
     "Étapes": f"{r.etapes_faites}/7",
     "Prochaine échéance": r.prochaine_echeance or "—",
-    "Responsable": r.dossier.responsable,
+    **({} if utilisateur.role is Role.COLLABORATEUR else {"Responsable": r.dossier.responsable}),
 } for r in visibles]
 # Clé renouvelée après chaque ouverture : sinon la ligne resterait sélectionnée au retour sur cette page.
 generation = st.session_state.setdefault("generation_tableau_dossiers", 0)

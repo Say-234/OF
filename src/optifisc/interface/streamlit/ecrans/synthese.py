@@ -12,7 +12,8 @@ def dialogue_valider(app, utilisateur, dossier, non_validees):
     st.write("La validation fige le résultat : montants, version du référentiel, date et nom du valideur.")
     verifiees = True
     if non_validees:
-        st.warning(f"Règles utilisées encore « à valider » par le cabinet : {', '.join(non_validees)}.",
+        st.warning("Règles utilisées encore « à valider » par le cabinet : "
+                   f"{', '.join(r.split('_')[0] for r in non_validees)}.",
                    icon=":material/rule:")
         verifiees = st.checkbox("J'ai vérifié les règles non validées utilisées dans ce calcul")
     if st.button("Valider le dossier", type="primary", disabled=not verifiees):
@@ -63,7 +64,8 @@ def afficher(app, utilisateur, dossier, derniere_balance):
         st.warning(f"Renvoyé par {renvoi['par']} : {renvoi['commentaire']}", icon=":material/reply:")
         points += 1
     if non_validees:
-        st.warning(f"{len(non_validees)} règle(s) « à valider » utilisées : {', '.join(non_validees)}.",
+        references = ", ".join(r.split("_")[0] for r in non_validees)
+        st.warning(f"{len(non_validees)} règle(s) encore « à valider » par le cabinet utilisées : {references}.",
                    icon=":material/rule:")
         points += 1
     for alerte in resultat.alertes:

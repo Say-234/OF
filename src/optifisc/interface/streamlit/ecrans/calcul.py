@@ -9,10 +9,9 @@ from . import bandeau_fige, bouton_suite, peut_modifier
 
 
 def afficher(app, utilisateur, dossier, derniere_balance):
-    with st.container(horizontal=True, vertical_alignment="bottom"):
-        with st.container():
-            composants.entete("Calcul de l'impôt", "IS de droit commun (art. 46) comparé au minimum de perception "
-                                                   "(art. 47) ; le plus élevé est dû.")
+    actions = composants.entete("Calcul de l'impôt", "IS de droit commun (art. 46) comparé au minimum de "
+                                                     "perception (art. 47) ; le plus élevé est dû.")
+    with actions:
         if dossier.etat is EtatDossier.EN_PREPARATION and peut_modifier(utilisateur, dossier):
             if st.button("Calculer", type="primary", icon=":material/calculate:"):
                 if composants.executer(lambda: app.calcul.calculer(utilisateur, dossier.id), "Calcul effectué"):

@@ -17,3 +17,4 @@ dossiers:
     aib: 2000000
     dotations_a_passer: 20000000
     deficits: 0
+    preparer_jusqu_au_calcul: true   # démo : saisies « néant » et calcul faits, toutes les étapes visibles

@@ -18,6 +18,11 @@ grayColor = "#475569"               # information
 baseRadius = "6px"
 showWidgetBorder = true
 showSidebarBorder = true
+# Échelle typographique du doc 05 (A.4) : titre d'écran 24 px, section 20 px
+headingFontSizes = ["2rem", "1.5rem", "1.25rem", "1rem", "0.875rem", "0.75rem"]
+headingFontWeights = [700, 600, 600, 600, 600, 600]
+metricValueFontSize = "1.625rem"
+metricValueFontWeight = 600
 
 [theme.sidebar]
 backgroundColor = "#FFFFFF"

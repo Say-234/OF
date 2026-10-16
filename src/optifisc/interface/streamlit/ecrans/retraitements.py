@@ -10,10 +10,8 @@ from optifisc.interface.streamlit import composants, formats
 from . import bandeau_fige, bouton_suite, peut_modifier
 
 
-def _statut(ligne, validees) -> str:
-    if not ligne.renseignee:
-        return "▲ à compléter"
-    return "✓" if ligne.id_regle in validees or not ligne.a_valider else "✓ (règle à valider)"
+def _statut(ligne) -> str:
+    return "✓ renseignée" if ligne.renseignee else "▲ à compléter"
 
 
 def _saisie(app, utilisateur, dossier, cle_regle, valeur_actuelle, modifiable):
@@ -41,10 +39,9 @@ def afficher(app, utilisateur, dossier, derniere_balance):
     resultat = app.calcul.resultat(utilisateur, dossier.id)
     ref = app.referentiel
     manquantes = len(resultat.saisies_manquantes)
-    with st.container(horizontal=True, vertical_alignment="bottom"):
-        with st.container():
-            composants.entete("Retraitements",
-                              "Passage du résultat comptable au résultat fiscal (CGI art. 15 à 43).")
+    actions = composants.entete("Retraitements",
+                                "Passage du résultat comptable au résultat fiscal (CGI art. 15 à 43).")
+    with actions:
         if manquantes:
             composants.badge(f"{manquantes} saisie(s) à compléter sur {len(resultat.retraitements)}", "a_faire")
         else:
@@ -64,12 +61,15 @@ def afficher(app, utilisateur, dossier, derniere_balance):
                 "Origine": "Saisie" if li.depuis_saisie else "Balance",
                 "Base (FCFA)": formats.montant(li.base) if li.renseignee else "—",
                 "Retenu (FCFA)": formats.montant(li.montant) if li.renseignee else "—",
-                "Sens": "+" if li.sens is Sens.REINTEGRATION else "−", "Statut": _statut(li, validees)}
+                "Sens": "+" if li.sens is Sens.REINTEGRATION else "−", "Statut": _statut(li),
+                "Règle validée": "✓" if li.id_regle in validees else "à valider"}
                for li in lignes]
     evenement = st.dataframe(tableau, hide_index=True, on_select="rerun", selection_mode="single-row",
                              key=f"tableau_retraitements_{dossier.id}_{filtre}_{a_completer}",
                              column_config={"Base (FCFA)": composants.colonne_montant("Base (FCFA)"),
-                                            "Retenu (FCFA)": composants.colonne_montant("Retenu (FCFA)")},
+                                            "Retenu (FCFA)": composants.colonne_montant("Retenu (FCFA)"),
+                                            "Règle": st.column_config.TextColumn(width="large"),
+                                            "Sens": st.column_config.TextColumn(width="small")},
                              alt="Règles de retraitement")
     with st.container(horizontal=True, horizontal_alignment="right"):
         st.markdown(f"Total réintégrations **{formats.montant(resultat.reintegrations, unite=True)}** · "

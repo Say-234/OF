@@ -39,7 +39,7 @@ libelles = {"synthese": "Synthèse"}
 for e in etapes:
     libelles[e.id] = f"{':material/check: ' if e.faite else ''}{e.numero} {e.libelle}"
 
-composants.entete_dossier(dossier, app.referentiel.parametres.libelles_secteur[dossier.secteur.value],
+composants.entete_dossier(dossier, app.referentiel.parametres.libelles_secteur[dossier.secteur.value].split(" (")[0],
                           derniere_balance[2] if derniere_balance else None)
 if "etape" not in st.session_state or st.session_state["etape"] not in ECRANS:
     st.session_state["etape"] = "synthese"

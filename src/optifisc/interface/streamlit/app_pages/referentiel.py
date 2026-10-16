@@ -15,11 +15,10 @@ validees = app.validation.regles_validees()
 TYPES = {"totalite": "Totalité des comptes", "plafond_ca": "Plafond sur CA", "plafond_ebe": "Plafond d'intérêts",
          "saisie": "Saisie", "plafond_saisie": "Saisie plafonnée"}
 
-with st.container(horizontal=True, vertical_alignment="bottom"):
-    with st.container():
-        composants.entete(f"Référentiel des règles — {ref.millesime}",
-                          "Règles appliquées par le moteur, avec leur article. L'expert-comptable valide chaque "
-                          "règle sur un cas chiffré.")
+actions = composants.entete(f"Référentiel des règles — {ref.millesime}",
+                            "Règles appliquées par le moteur, avec leur article. L'expert-comptable valide chaque "
+                            "règle sur un cas chiffré.")
+with actions:
     composants.badge(f"Validées : {len(validees)} / {len(ref.regles)}", "info")
 
 statut = st.segmented_control("Statut", ["Toutes", "À valider", "Validées"], default="Toutes", required=True,

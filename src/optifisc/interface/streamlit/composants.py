@@ -23,11 +23,17 @@ ETATS = {
 }
 
 
-def entete(titre: str, sous_titre: str = "") -> None:
-    """Gabarit commun : un titre et UNE ligne qui dit à quoi sert l'écran."""
-    st.header(titre, anchor=False)
-    if sous_titre:
-        st.caption(sous_titre)
+def entete(titre: str, sous_titre: str = ""):
+    """Gabarit commun : un titre et UNE ligne qui dit à quoi sert l'écran.
+
+    Renvoie une zone à droite du titre, où placer l'action principale de l'écran (doc 05, A.5).
+    """
+    gauche, droite = st.columns([3, 1], vertical_alignment="bottom")
+    with gauche:
+        st.header(titre, anchor=False)
+        if sous_titre:
+            st.caption(sous_titre)
+    return droite.container(horizontal=True, horizontal_alignment="right")
 
 
 def badge_etat(etat: EtatDossier) -> None:

@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "ruff>=0.5"]
+dev = ["pytest>=8.0", "ruff>=0.5", "playwright>=1.40"]   # playwright : scripts/captures.py (Chrome du poste)
 
 [build-system]
 requires = ["setuptools>=68"]

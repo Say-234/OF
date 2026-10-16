@@ -25,7 +25,7 @@ with st.container(width=440):
         st.stop()
 
     with st.form("connexion"):
-        email = st.text_input("E-mail", type="email", autocomplete="username")
+        email = st.text_input("E-mail", type="email", autocomplete="username", placeholder="prenom.nom@cabinet.bj")
         mot_de_passe = st.text_input("Mot de passe", type="password", autocomplete="current-password")
         envoye = st.form_submit_button("Se connecter", type="primary", width="stretch")
     if envoye:
