@@ -6,7 +6,11 @@ temporaire et une horloge figée : aucun autre fichier ne change.
 """
 import os
 from dataclasses import dataclass
+from datetime import date
+from decimal import Decimal
 from pathlib import Path
+
+import yaml
 
 from optifisc.application.balance import ServiceBalance
 from optifisc.application.calcul import ServiceCalcul
@@ -16,6 +20,8 @@ from optifisc.application.dossiers import ServiceDossiers
 from optifisc.application.livrables import ServiceLivrables
 from optifisc.application.scenarios import ServiceScenarios
 from optifisc.application.validation import ServiceValidation
+from optifisc.domaine.dossier import Ajustement, CategorieTaux, Hypotheses, Secteur
+from optifisc.domaine.utilisateur import Role, Utilisateur
 from optifisc.infrastructure.horloge import HorlogeSysteme
 from optifisc.infrastructure.lecteur_balance import LecteurBalanceTableur
 from optifisc.infrastructure.livrables.generateur import GenerateurOffice
@@ -48,6 +54,7 @@ class Application:
     validation: ServiceValidation
     livrables: ServiceLivrables
     mode: str = "cabinet"
+    aide_demo: str = ""                     # comptes de démonstration affichés sur l'écran de connexion
 
     @property
     def referentiel(self):
@@ -60,6 +67,8 @@ def construire(chemin_base: Path | str | None = None, racine_referentiel: Path |
     chemin_base = chemin_base or os.environ.get("OPTIFISC_BASE") or RACINE_PROJET / "var" / f"optifisc_{mode}.sqlite"
     racine_referentiel = racine_referentiel or RACINE_PROJET / "referentiel"
     horloge = horloge or HorlogeSysteme()
+    if mode == "demo":
+        Path(chemin_base).unlink(missing_ok=True)       # démonstration : base fictive recréée à chaque démarrage
     base = BaseSqlite(chemin_base)
     dep = Dependances(
         referentiel=ReferentielYaml(racine_referentiel).charger(MILLESIME),
@@ -68,6 +77,47 @@ def construire(chemin_base: Path | str | None = None, racine_referentiel: Path |
         validations=DepotValidationsSqlite(base), journal=JournalSqlite(base),
         lecteur_balance=LecteurBalanceTableur(), horloge=horloge, generateur_livrables=GenerateurOffice(),
     )
-    comptes = ServiceComptes(DepotUtilisateursSqlite(base), MotsDePassePbkdf2(), dep.journal, horloge, dep.dossiers)
-    return Application(dep, comptes, ServiceDossiers(dep), ServiceBalance(dep), ServiceCalcul(dep),
-                       ServiceScenarios(dep), ServiceValidation(dep), ServiceLivrables(dep), mode)
+    comptes = ServiceComptes(DepotUtilisateursSqlite(base), MotsDePassePbkdf2(), dep.journal, horloge)
+    app = Application(dep, comptes, ServiceDossiers(dep), ServiceBalance(dep), ServiceCalcul(dep),
+                      ServiceScenarios(dep), ServiceValidation(dep), ServiceLivrables(dep), mode)
+    if mode == "demo":
+        initialiser_demonstration(app, racine_referentiel / "demo")
+    return app
+
+
+# ------------------------------------------------------------------ mode démonstration (doc 06, §4.5)
+COMPTES_DEMO = (("admin@demo.bj", "Administrateur (démo)", Role.ADMIN),
+                ("expert@demo.bj", "Expert-comptable (démo)", Role.EXPERT),
+                ("salim@demo.bj", "Salim A. (démo)", Role.COLLABORATEUR))
+
+
+def initialiser_demonstration(app: Application, dossier_demo: Path) -> None:
+    """Base de démonstration : 3 comptes et 2 dossiers FICTIFS prêts à l'emploi (balance et hypothèses saisies).
+
+    Le mot de passe commun vient de la variable OPTIFISC_MDP_DEMO (secret de l'hébergeur) ; sans elle, il est
+    généré au démarrage et affiché sur l'écran de connexion (données fictives uniquement).
+    """
+    mot_de_passe = os.environ.get("OPTIFISC_MDP_DEMO") or MotsDePassePbkdf2().generer()
+    if app.comptes.aucun_compte():                  # toujours vrai : la base de démo vient d'être recréée
+        service = MotsDePassePbkdf2()
+        for email, nom, role in COMPTES_DEMO:
+            app.comptes.utilisateurs.ajouter(Utilisateur(email, nom, role), *service.hacher(mot_de_passe))
+        collaborateur = app.comptes.utilisateurs.charger("salim@demo.bj")
+        demos = yaml.safe_load((dossier_demo / "demos.yaml").read_text(encoding="utf-8"))["dossiers"]
+        for d in demos:
+            dossier = app.dossiers.creer(collaborateur, d["raison_sociale"], Secteur(d["secteur"]),
+                                         CategorieTaux.DROIT_COMMUN, MILLESIME, demonstration=True)
+            contenu = (dossier_demo / d["fichier"]).read_bytes()
+            apercu = app.balance.apercu(collaborateur, dossier.id, contenu, d["fichier"], date(MILLESIME, 6, 30))
+            app.balance.confirmer(collaborateur, dossier.id, apercu)
+            app.dossiers.definir_hypotheses(collaborateur, dossier.id, Hypotheses(
+                mois_arrete=6, is_n_moins_1=Decimal(d["is_n_moins_1"]), aib_imputable=Decimal(d["aib"]),
+                deficits_anterieurs=Decimal(d["deficits"]),
+                ajustements=(Ajustement("6813", "Dotations aux amortissements 2026 à passer",
+                                        Decimal(d["dotations_a_passer"])),)))
+        app.aide_demo = _aide(mot_de_passe)
+
+
+def _aide(mot_de_passe: str) -> str:
+    lignes = "\n".join(f"- `{email}` — {nom}" for email, nom, _ in COMPTES_DEMO)
+    return f"{lignes}\n\nMot de passe commun : `{mot_de_passe}`"

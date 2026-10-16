@@ -7,7 +7,7 @@ from optifisc.domaine.journal import EvenementAudit
 from optifisc.domaine.utilisateur import Role, Utilisateur
 
 from .autorisation import exiger
-from .ports import DepotDossiers, DepotUtilisateurs, Horloge, Journal, ServiceMotsDePasse
+from .ports import DepotUtilisateurs, Horloge, Journal, ServiceMotsDePasse
 
 ECHECS_AVANT_BLOCAGE = 5
 DUREE_BLOCAGE = timedelta(minutes=15)
@@ -16,17 +16,24 @@ MESSAGE_ECHEC = "E-mail ou mot de passe incorrect."
 
 class ServiceComptes:
     def __init__(self, utilisateurs: DepotUtilisateurs, mots_de_passe: ServiceMotsDePasse, journal: Journal,
-                 horloge: Horloge, dossiers: DepotDossiers | None = None):
+                 horloge: Horloge):
         self.utilisateurs = utilisateurs
         self.mdp = mots_de_passe
         self.journal = journal
         self.horloge = horloge
-        self.dossiers = dossiers
 
     def _tracer(self, qui: str, role: str, action: str, detail: str, dossier_id: str = "") -> None:
         self.journal.ajouter(EvenementAudit(self.horloge.maintenant(), qui, role, action, detail, dossier_id))
 
     # ------------------------------------------------------------------ UC12 connexion
+    def utilisateur_actif(self, email: str) -> Utilisateur | None:
+        """Relit le compte à chaque écran : un compte désactivé perd l'accès immédiatement."""
+        utilisateur = self.utilisateurs.charger(email)
+        return utilisateur if utilisateur and utilisateur.actif else None
+
+    def aucun_compte(self) -> bool:
+        return not self.utilisateurs.lister()
+
     def connecter(self, email: str, mot_de_passe: str) -> Utilisateur:
         email = email.strip().lower()
         maintenant = self.horloge.maintenant()
@@ -111,12 +118,3 @@ class ServiceComptes:
     def lister(self, demandeur: Utilisateur | None) -> list[Utilisateur]:
         exiger(demandeur, "gerer_utilisateurs")
         return self.utilisateurs.lister()
-
-    def attribuer_dossier(self, demandeur: Utilisateur | None, dossier_id: str, email: str):
-        exiger(demandeur, "attribuer_dossier")
-        dossier = self.dossiers.charger(dossier_id)
-        responsable = self.utilisateurs.charger(email)
-        if dossier is None or responsable is None:
-            raise DonneeInvalide("dossier ou collaborateur inconnu")
-        self.dossiers.enregistrer(replace(dossier, responsable=email))
-        self._tracer(demandeur.email, demandeur.role.value, "dossier_attribue", f"à {email}", dossier_id)

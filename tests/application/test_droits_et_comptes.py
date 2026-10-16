@@ -10,7 +10,7 @@ from optifisc.application.comptes import ServiceComptes
 from optifisc.domaine.erreurs import AccesRefuse, DonneeInvalide
 from optifisc.domaine.utilisateur import Role, Utilisateur
 from optifisc.infrastructure.persistance.connexion import BaseSqlite
-from optifisc.infrastructure.persistance.depots import DepotDossiersSqlite, DepotUtilisateursSqlite, JournalSqlite
+from optifisc.infrastructure.persistance.depots import DepotUtilisateursSqlite, JournalSqlite
 from optifisc.infrastructure.securite import MotsDePassePbkdf2
 
 SALIM = Utilisateur("salim@cabinet.bj", "Salim", Role.COLLABORATEUR)
@@ -69,8 +69,7 @@ class HorlogeFigee:
 @pytest.fixture
 def comptes(tmp_path):
     base = BaseSqlite(tmp_path / "t.sqlite")
-    service = ServiceComptes(DepotUtilisateursSqlite(base), MotsDePassePbkdf2(), JournalSqlite(base), HorlogeFigee(),
-                             DepotDossiersSqlite(base))
+    service = ServiceComptes(DepotUtilisateursSqlite(base), MotsDePassePbkdf2(), JournalSqlite(base), HorlogeFigee())
     service.journal_brut = JournalSqlite(base)
     return service
 

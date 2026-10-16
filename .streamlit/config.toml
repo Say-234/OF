@@ -1,0 +1,33 @@
+# Thème d'OptiFisc : jetons de couleur du doc 05 (A.3), palette « B2B Service », mode clair uniquement.
+# Aucune police chargée depuis internet : la police par défaut de Streamlit est embarquée.
+
+[theme]
+base = "light"
+primaryColor = "#0369A1"            # bleu : réservé aux actions (boutons, liens, focus)
+backgroundColor = "#F8FAFC"
+secondaryBackgroundColor = "#F1F5F9"
+textColor = "#0F172A"
+borderColor = "#E2E8F0"
+dataframeBorderColor = "#E2E8F0"
+dataframeHeaderBackgroundColor = "#F1F5F9"
+linkColor = "#0369A1"
+redColor = "#B91C1C"                # risque, erreur
+orangeColor = "#B45309"             # à faire, attention
+greenColor = "#15803D"              # fait, conforme
+grayColor = "#475569"               # information
+baseRadius = "6px"
+showWidgetBorder = true
+showSidebarBorder = true
+
+[theme.sidebar]
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F1F5F9"
+
+[client]
+toolbarMode = "minimal"
+
+[server]
+maxUploadSize = 20                  # Mo : une balance tient largement dans cette limite
+
+[browser]
+gatherUsageStats = false            # aucune donnée d'usage envoyée (usage en cabinet)

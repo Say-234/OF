@@ -155,6 +155,19 @@ class ServiceDossiers:
         self.dep.tracer(utilisateur, "saisie", f"{id_regle} : {texte}", dossier.id)
         return dossier
 
+    def journal(self, utilisateur: Utilisateur | None, dossier_id: str | None = None, limite: int = 200) -> list:
+        """UC11 : chronologie des événements ; un collaborateur ne voit que ceux de ses dossiers."""
+        if dossier_id:
+            dossier = self.ouvrir(utilisateur, dossier_id)
+            exiger(utilisateur, "consulter_journal", dossier)
+            return self.dep.journal.lister(dossier_id, limite)
+        exiger(utilisateur, "consulter_journal")
+        evenements = self.dep.journal.lister(None, limite)
+        if utilisateur.role is Role.COLLABORATEUR:
+            siens = {d.id for d in self.dep.dossiers.lister() if d.responsable == utilisateur.email}
+            evenements = [e for e in evenements if e.dossier_id in siens or e.utilisateur == utilisateur.email]
+        return evenements
+
     def attribuer(self, utilisateur: Utilisateur | None, dossier_id: str, email: str) -> Dossier:
         exiger(utilisateur, "attribuer_dossier")
         dossier = self.dep.dossiers.charger(dossier_id)
