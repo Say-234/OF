@@ -40,6 +40,9 @@ select = ["E", "F", "W", "I", "B"]
 [tool.ruff.lint.per-file-ignores]
 # Le modèle de lettre au DGI garde ses paragraphes sur une ligne, pour rester lisible comme un texte.
 "src/optifisc/infrastructure/livrables/word.py" = ["E501"]
+# Les consignes données à l'IA sont des textes : une phrase par ligne reste plus lisible.
+"src/optifisc/application/assistant.py" = ["E501"]
+"src/optifisc/application/agent/boucle.py" = ["E501"]
 
 [tool.setuptools.package-data]
 optifisc = ["infrastructure/persistance/migrations/*.sql"]

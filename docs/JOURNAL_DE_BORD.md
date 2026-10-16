@@ -8,20 +8,29 @@
 | | |
 |---|---|
 | **Phase** | Construction (l'agent construit, Salim supervise à la fin — décision du 16/10/2026) |
-| **Jalon en cours** | J6 — leviers et acomptes |
-| **Prochaine action** | Terminer J6, puis J7 (persistance SQLite) |
-| **Tests** | 81 verts (`.venv/Scripts/python -m pytest -q`) ; ruff propre |
-| **Retard sur le calendrier** | Rattrapé : J0 à J5 faits le 16/10 |
+| **Jalon en cours** | J11 — assistant CGI (BM25 + OpenRouter) et agent de propositions |
+| **Prochaine action** | Construire J11, puis J12 (recette, mise en ligne, `lancer.bat`) |
+| **Tests** | 134 verts (`.venv/Scripts/python -m pytest -q`, ~45 s) ; ruff propre |
+| **Lancer l'application** | `.venv/Scripts/python -m streamlit run src/optifisc/interface/streamlit/app.py` (mode cabinet) ; mode démo : variables `OPTIFISC_MODE=demo` et `OPTIFISC_MDP_DEMO=...` |
+| **Retard sur le calendrier** | Aucun : J0 à J10 faits le 16/10 (en avance) |
 
 ## Questions ouvertes
 
-- Format exact d'appel de Jev via OpenRouter, sa tenue en français, ses conditions d'accès (à vérifier à J11).
+- Modèle gratuit OpenRouter à retenir (suffixe `:free`) et ses limites de débit (à vérifier à J11 avec la clé de Salim).
 - Conditions de l'offre gratuite de Streamlit Community Cloud : dépôt privé, mise en veille (à vérifier à J12).
 - Balance réelle anonymisée : à obtenir auprès du cabinet pour la recette (J12).
 
 ---
 
 ## Historique des sessions
+
+### 16/10/2026 — Construction J6 à J10
+- **J6** : `domaine/moteur/leviers.py` (L01 à L05, simulation avant/après), `acomptes.py` (échéancier, réduction, crédit d'impôt).
+- **J7** : SQLite (`infrastructure/persistance/` : migrations numérotées, dépôts, journal en ajout seul protégé par des triggers), `securite.py` (PBKDF2, 8 caractères min.).
+- **J8** : `application/autorisation.py` (matrice fail-closed, cloisonnement), `application/comptes.py` (blocage 5 échecs / 15 min).
+- **J9-J10 application** : `application/` dossiers, balance (aperçu puis confirmation), calcul, scénarios, validation (empreinte par règle), livrables ; `infrastructure/livrables/` (Excel avec formules, note Word, lettre DGI) ; `composition.py` (+ mode démo : base recréée, comptes `*@demo.bj`, NOVA calculé). Parcours A et B testés de bout en bout (`tests/bout_en_bout/test_parcours.py`).
+- **J9-J10 interface** : `interface/streamlit/` (app.py, app_pages/, ecrans/ par étape, composants, formats, etat), thème `.streamlit/config.toml` ; test de fumée AppTest (`tests/interface/`) ; captures `scripts/captures.py` → `var/captures/`.
+- **Écarts de structure par rapport au doc 07** (à valider par Salim) : `app_pages/` au lieu de `pages/` (recommandation Streamlit) ; `ecrans/` (un module par étape du dossier) ; `application/dependances.py` ; `domaine/journal.py`, `domaine/scenario.py` ; `infrastructure/livrables/generateur.py`.
 
 ### 16/10/2026 — Construction J0 à J5
 - **Décisions** : D1.8 / D3.8 tranchées (pas de Jev, payant) → « Système 1 » maison : `JugeDeterministe` (doc 01, A.4) ; IA générative = modèles gratuits d'OpenRouter. Méthode : l'agent construit, Salim supervise. Structure du code figée : `docs/07_structure_du_code.md`. Python 3.14 (installé).

@@ -35,3 +35,7 @@ class TransitionInterdite(ErreurMetier):
 
 class EtapeIncomplete(ErreurMetier):
     """Une étape préalable manque (ex. calculer sans balance, soumettre avec des saisies vides)."""
+
+
+class IAIndisponible(ErreurMetier):
+    """Le service d'IA ne répond pas (pas de réseau, clé absente, quota dépassé…) : le reste de l'outil fonctionne."""

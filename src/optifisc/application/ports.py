@@ -113,3 +113,30 @@ class GenerateurLivrables(Protocol):
     """Met en forme les données rassemblées par application/livrables.py (DonneesLivrables → [Livrable])."""
 
     def generer(self, donnees) -> list: ...
+
+
+# ------------------------------------------------------------------ IA (doc 01, A.3 et A.4)
+class RechercheArticles(Protocol):
+    def rechercher(self, question: str, k: int = 5) -> list: ...          # [ArticleTrouve]
+
+    def article(self, numero: str, source: str = "CGI 2026"): ...          # Article | None
+
+    def similarite(self, texte: str, numero: str) -> float: ...
+
+
+class FournisseurIA(Protocol):
+    """Modèle de langage (« Système 2 »). Ne reçoit JAMAIS de données identifiantes (pare-feu, doc 01 A.3)."""
+    disponible: bool
+    nom: str
+    confidentiel: bool                    # True si hébergé dans un environnement confidentiel (ex. Ollama local)
+
+    def discuter(self, messages: list[dict]) -> str: ...
+
+
+class ModeleDecision(Protocol):
+    """« Système 1 » : pré-tri des leviers et jugement des propositions (doc 01, A.4).
+    Implémenté par application/agent/juge.py (JugeDeterministe) ; Jev ou Laya pourraient le remplacer."""
+
+    def pre_trier(self, profil) -> list: ...
+
+    def juger(self, article: str, justification: str, levier_bloquant: bool | None) -> tuple: ...

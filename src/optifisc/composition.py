@@ -11,7 +11,10 @@ from decimal import Decimal
 from pathlib import Path
 
 import yaml
+from dotenv import load_dotenv
 
+from optifisc.application.agent.service import ServiceAgent
+from optifisc.application.assistant import ServiceAssistant
 from optifisc.application.balance import ServiceBalance
 from optifisc.application.calcul import ServiceCalcul
 from optifisc.application.comptes import ServiceComptes
@@ -22,9 +25,12 @@ from optifisc.application.scenarios import ServiceScenarios
 from optifisc.application.validation import ServiceValidation
 from optifisc.domaine.dossier import Ajustement, CategorieTaux, Hypotheses, Secteur
 from optifisc.domaine.utilisateur import Role, Utilisateur
+from optifisc.infrastructure.corpus import charger_corpus
 from optifisc.infrastructure.horloge import HorlogeSysteme
+from optifisc.infrastructure.ia_desactivee import IADesactivee
 from optifisc.infrastructure.lecteur_balance import LecteurBalanceTableur
 from optifisc.infrastructure.livrables.generateur import GenerateurOffice
+from optifisc.infrastructure.openrouter import OpenRouter
 from optifisc.infrastructure.persistance.connexion import BaseSqlite
 from optifisc.infrastructure.persistance.depots import (
     DepotBalancesSqlite,
@@ -35,6 +41,7 @@ from optifisc.infrastructure.persistance.depots import (
     DepotValidationsSqlite,
     JournalSqlite,
 )
+from optifisc.infrastructure.recherche_bm25 import RechercheBm25
 from optifisc.infrastructure.referentiel_yaml import ReferentielYaml
 from optifisc.infrastructure.securite import MotsDePassePbkdf2
 
@@ -53,6 +60,8 @@ class Application:
     scenarios: ServiceScenarios
     validation: ServiceValidation
     livrables: ServiceLivrables
+    assistant: ServiceAssistant
+    agent: ServiceAgent
     mode: str = "cabinet"
     aide_demo: str = ""                     # comptes de démonstration affichés sur l'écran de connexion
 
@@ -61,8 +70,16 @@ class Application:
         return self.dependances.referentiel
 
 
+def fournisseur_ia():
+    """Choix du fournisseur d'IA selon .env : OpenRouter (modèle gratuit) ou aucune IA."""
+    if os.environ.get("OPTIFISC_IA", "desactivee") == "openrouter":
+        return OpenRouter(os.environ.get("OPENROUTER_API_KEY", ""), os.environ.get("OPENROUTER_MODELE", ""))
+    return IADesactivee()
+
+
 def construire(chemin_base: Path | str | None = None, racine_referentiel: Path | None = None,
-               horloge=None, mode: str | None = None) -> Application:
+               horloge=None, mode: str | None = None, fournisseur=None) -> Application:
+    load_dotenv(RACINE_PROJET / ".env")               # réglages locaux (clé d'API…) : jamais dans le code
     mode = mode or os.environ.get("OPTIFISC_MODE", "cabinet")
     chemin_base = chemin_base or os.environ.get("OPTIFISC_BASE") or RACINE_PROJET / "var" / f"optifisc_{mode}.sqlite"
     racine_referentiel = racine_referentiel or RACINE_PROJET / "referentiel"
@@ -78,8 +95,13 @@ def construire(chemin_base: Path | str | None = None, racine_referentiel: Path |
         lecteur_balance=LecteurBalanceTableur(), horloge=horloge, generateur_livrables=GenerateurOffice(),
     )
     comptes = ServiceComptes(DepotUtilisateursSqlite(base), MotsDePassePbkdf2(), dep.journal, horloge)
+    recherche = RechercheBm25(charger_corpus(racine_referentiel / "corpus"))
+    fournisseur = fournisseur or fournisseur_ia()
+    reels = os.environ.get("OPTIFISC_IA_DOSSIERS_REELS", "non").lower() == "oui"
     app = Application(dep, comptes, ServiceDossiers(dep), ServiceBalance(dep), ServiceCalcul(dep),
-                      ServiceScenarios(dep), ServiceValidation(dep), ServiceLivrables(dep), mode)
+                      ServiceScenarios(dep), ServiceValidation(dep), ServiceLivrables(dep),
+                      ServiceAssistant(dep, recherche, fournisseur), ServiceAgent(dep, recherche, fournisseur, reels),
+                      mode)
     if mode == "demo":
         initialiser_demonstration(app, racine_referentiel / "demo")
     return app
