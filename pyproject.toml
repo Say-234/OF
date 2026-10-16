@@ -36,3 +36,6 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 # Règles retenues : erreurs (E, F), avertissements (W), ordre des imports (I), pièges courants (B)
 select = ["E", "F", "W", "I", "B"]
+
+[tool.setuptools.package-data]
+optifisc = ["infrastructure/persistance/migrations/*.sql"]
