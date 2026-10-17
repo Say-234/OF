@@ -21,6 +21,7 @@ def bouton_principal(cle: str) -> None:
 # ------------------------------------------------------------------ bandeau d'ouverture
 with composants.carte():
     st.space("small")
+    composants.logo_complet(170)
     st.badge("CGI Bénin 2026 · impôt sur les sociétés", color="green", icon=":material/account_balance:")
     st.title("Piloter l'IS pendant l'exercice, pas après.", anchor=False)
     st.markdown("OptiFisc aide un cabinet d'expertise comptable à **estimer l'impôt sur les sociétés dès la "

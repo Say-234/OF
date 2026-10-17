@@ -54,7 +54,7 @@ def test_accueil_avant_connexion(environnement):
 def test_ecran_de_connexion(environnement):
     at = page_de_connexion()
     assert not at.exception
-    assert "OptiFisc" in at.header[0].value
+    assert at.header[0].value == "Connexion"
 
 
 def test_mauvais_mot_de_passe_refuse(environnement):

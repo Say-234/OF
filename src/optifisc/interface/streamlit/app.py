@@ -8,7 +8,7 @@ import streamlit as st
 from optifisc.domaine.utilisateur import Role
 from optifisc.interface.streamlit import composants, etat, missions
 
-st.set_page_config(page_title="OptiFisc", page_icon=":material/account_balance:", layout="wide")
+st.set_page_config(page_title="OptiFisc", page_icon=composants.icone_onglet(), layout="wide")
 
 app = etat.application()
 utilisateur = etat.utilisateur()

@@ -32,6 +32,9 @@
 - **Typographie** choisie (Plus Jakarta Sans + Inter, doc 05, A.4 révisé) : fichiers de police à télécharger avec l'accord de Salim. **Logo** : à générer par Salim (prompt fourni), à déposer dans `interface/streamlit/static/`.
 - **Tests** : tutoriel, préférences, accueil, missions des 3 rôles. Captures : `scripts/captures.py` (accueil → connexion → tutoriel → écrans).
 - **À valider par Salim** : D4.9 (journal de missions), D5.10 (typographie, logo).
+- **IA** : modèles gratuits de secours (`OPENROUTER_MODELES_SECOURS`, fournisseurs variés : Google sature par moments), une nouvelle tentative, réponses vides refusées.
+- **Logo** fourni par Salim (originaux `docs/identite/`) : `scripts/preparer_logo.py` produit `static/logo.png` (barre latérale), `icone.png` (onglet, barre repliée), `logo_complet.png` (accueil, connexion), fond transparent et couleurs exactes de la charte.
+- **En attente de Salim** : décision sur la « revue périodique par l'agent » (nouvelle balance au 30/09, 30/11, avant clôture → comparaison + agent relancé + note de revue).
 
 ### 16/10/2026 — Raccourcis de démonstration et guides
 - Mode démo uniquement (refusés en cabinet, testé) : connexion en un clic par rôle (`Application.entrer_en_demo`), changement de rôle dans la barre latérale, « Tout mettre à néant » sur les retraitements (`ServiceDossiers.saisir_neant_restantes`, chaque saisie reste tracée), session de 4 h.

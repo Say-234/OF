@@ -40,6 +40,21 @@ def preparer_page() -> None:
             break
 
 
+def logo_complet(largeur: int = 200) -> None:
+    """Logo complet (monogramme au-dessus du nom), s'il a été déposé dans static/ ; sinon le nom en titre."""
+    fichier = STATIQUE / "logo_complet.png"
+    if fichier.exists():
+        st.image(str(fichier), width=largeur)
+    else:
+        st.header("OptiFisc", anchor=False)
+
+
+def icone_onglet() -> str:
+    """Icône de l'onglet du navigateur : le monogramme s'il existe, sinon une icône Material."""
+    fichier = STATIQUE / "icone.png"
+    return str(fichier) if fichier.exists() else ":material/account_balance:"
+
+
 def carte(**options):
     """Carte blanche arrondie (fond teinté autour) : remplace st.container(border=True) dans toute l'interface.
 

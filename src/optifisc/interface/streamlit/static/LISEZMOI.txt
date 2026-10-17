@@ -1,2 +1,8 @@
-Déposer ici le logo professionnel : logo.svg (ou logo.png) et, si possible, icone.svg (version carrée).
+Logo (fourni par Salim le 17/10/2026, originaux dans docs/identite/) :
+  logo.png          monogramme + nom sur une ligne  -> barre latérale (st.logo)
+  icone.png         monogramme seul, carré          -> barre repliée et onglet du navigateur
+  logo_complet.png  monogramme au-dessus du nom     -> page d'accueil et connexion
+Ces trois fichiers sont produits par : python scripts/preparer_logo.py (ne pas les retoucher à la main).
+Un logo vectoriel (logo.svg) placé ici serait utilisé en priorité dans la barre latérale.
+
 Polices auto-hébergées : Inter et Plus Jakarta Sans (fichiers .woff2), voir doc 05 A.4.
