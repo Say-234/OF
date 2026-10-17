@@ -20,7 +20,7 @@ def _ecarter(app, utilisateur, dossier, proposition):
 
 
 def _carte(app, utilisateur, dossier, numero, p, modifiable):
-    with st.container(border=True):
+    with composants.carte():
         nature = "Levier chiffré" if p.type == "levier" else "Piste à étudier"
         st.markdown(f"**{numero} · {nature} · art. {p.article}**  \n{p.titre}")
         st.caption(p.justification)
@@ -53,7 +53,7 @@ def _carte(app, utilisateur, dossier, numero, p, modifiable):
 
 
 def afficher(app, utilisateur, dossier, modifiable):
-    with st.container(border=True):
+    with composants.carte():
         st.markdown("**Propositions de l'agent**")
         possible, raison = app.agent.peut_utiliser_l_ia(dossier)
         propositions, donnees = app.agent.lister(utilisateur, dossier.id)

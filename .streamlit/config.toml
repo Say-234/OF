@@ -1,40 +1,49 @@
-# Thème d'OptiFisc : jetons de couleur du doc 05 (A.3), palette « B2B Service », mode clair uniquement.
-# Aucune police chargée depuis internet : la police par défaut de Streamlit est embarquée.
+# Thème d'OptiFisc — révision du 17/10/2026 : accent VERT inspiré de la maquette de Salim (doc 05, A.3 révisé).
+# Contrastes vérifiés (WCAG AA) : blanc sur vert 6,5:1 ; vert sur fond 5,8:1 ; texte secondaire sur fond 6,2:1.
+# La profondeur vient du contraste fond teinté / cartes blanches (style.css), pas de dégradés.
 
 [theme]
 base = "light"
-primaryColor = "#0369A1"            # bleu : réservé aux actions (boutons, liens, focus)
-backgroundColor = "#F8FAFC"
-secondaryBackgroundColor = "#F1F5F9"
-textColor = "#0F172A"
-borderColor = "#E2E8F0"
-dataframeBorderColor = "#E2E8F0"
-dataframeHeaderBackgroundColor = "#F1F5F9"
-linkColor = "#0369A1"
-redColor = "#B91C1C"                # risque, erreur
-orangeColor = "#B45309"             # à faire, attention
-greenColor = "#15803D"              # fait, conforme
-grayColor = "#475569"               # information
-baseRadius = "6px"
+primaryColor = "#0E6B4E"            # vert profond : actions (boutons, liens, onglet actif)
+backgroundColor = "#EEF4F1"         # fond légèrement teinté vert : les cartes blanches s'en détachent
+secondaryBackgroundColor = "#E3EEE8"
+textColor = "#10231C"
+borderColor = "#DCE7E1"
+dataframeBorderColor = "#E3ECE7"
+dataframeHeaderBackgroundColor = "#F4F8F6"
+linkColor = "#0E6B4E"
+greenColor = "#15803D"              # statut : fait, conforme (toujours avec icône ✓ et texte)
+orangeColor = "#B45309"             # statut : à faire, attention
+redColor = "#B91C1C"                # statut : risque, erreur
+grayColor = "#4A5E56"               # statut : information
+blueColor = "#0E6B4E"
+baseRadius = "10px"
+buttonRadius = "10px"
 showWidgetBorder = true
-showSidebarBorder = true
-# Échelle typographique du doc 05 (A.4) : titre d'écran 24 px, section 20 px
-headingFontSizes = ["2rem", "1.5rem", "1.25rem", "1rem", "0.875rem", "0.75rem"]
-headingFontWeights = [700, 600, 600, 600, 600, 600]
-metricValueFontSize = "1.625rem"
-metricValueFontWeight = 600
-# Marge haute réduite : le contenu commence plus haut (6rem par défaut)
+showSidebarBorder = false
+# Typographie (doc 05, A.4 révisé) : titres Plus Jakarta Sans, texte et chiffres Inter.
+# Les fichiers de police sont hébergés localement (dossier static/) : décommenter une fois téléchargés.
+# font = "Inter, sans-serif"
+# headingFont = "Plus Jakarta Sans, Inter, sans-serif"
+headingFontSizes = ["2rem", "1.5rem", "1.2rem", "1rem", "0.875rem", "0.75rem"]
+headingFontWeights = [700, 700, 600, 600, 600, 600]
+metricValueFontSize = "1.6rem"
+metricValueFontWeight = 700
 paddingTop = "2.5rem"
+# Paire validée par le script du skill dataviz (#0B7A55 / #4CC38A : séparation daltonisme ΔE 22)
+chartCategoricalColors = ["#0B7A55", "#4CC38A", "#B9C6C0"]
+chartSequentialColors = ["#E3F2EA", "#C2E3D2", "#9FD2B8", "#7CC19E", "#59AF84", "#3A9C6C", "#238657", "#167048", "#0E5B3B", "#08452D"]
 
 [theme.sidebar]
 backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F1F5F9"
+secondaryBackgroundColor = "#EEF4F1"
 
 [client]
 toolbarMode = "minimal"
 
 [server]
 maxUploadSize = 20                  # Mo : une balance tient largement dans cette limite
+enableStaticServing = true          # sert les polices et le logo hébergés localement (dossier static/)
 
 [browser]
 gatherUsageStats = false            # aucune donnée d'usage envoyée (usage en cabinet)

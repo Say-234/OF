@@ -1,9 +1,10 @@
 """Composants d'interface réutilisables (doc 05, A.6). Natifs Streamlit d'abord, aucun HTML sur mesure.
 
-Règle : la couleur porte un statut et n'est jamais seule (icône + texte) ; le bleu est réservé aux actions.
+Règle : la couleur porte un statut et n'est jamais seule (icône + texte) ; le vert d'accent est réservé aux actions.
 """
 from collections.abc import Callable
 from decimal import Decimal
+from pathlib import Path
 
 import streamlit as st
 
@@ -21,6 +22,31 @@ ETATS = {
     EtatDossier.VALIDE: ("Validé", "green", ":material/verified:"),
     EtatDossier.LIVRE: ("Livré", "green", ":material/task_alt:"),
 }
+
+
+DOSSIER = Path(__file__).parent
+STATIQUE = DOSSIER / "static"
+_cartes = {"numero": 0}
+
+
+def preparer_page() -> None:
+    """À appeler en tête de chaque exécution (app.py) : style des cartes, logo s'il existe, compteur de cartes."""
+    _cartes["numero"] = 0
+    st.html(f"<style>{(DOSSIER / 'style.css').read_text(encoding='utf-8')}</style>")
+    for nom in ("logo.svg", "logo.png"):                     # logo professionnel déposé dans static/ (doc 05)
+        if (STATIQUE / nom).exists():
+            icone = next((STATIQUE / i for i in ("icone.svg", "icone.png") if (STATIQUE / i).exists()), None)
+            st.logo(str(STATIQUE / nom), size="large", icon_image=str(icone) if icone else None)
+            break
+
+
+def carte(**options):
+    """Carte blanche arrondie (fond teinté autour) : remplace st.container(border=True) dans toute l'interface.
+
+    La clé « carte-N » donne à Streamlit la classe CSS st-key-carte-N, que style.css habille.
+    """
+    _cartes["numero"] += 1
+    return st.container(border=True, key=f"carte-{_cartes['numero']}", **options)
 
 
 def entete(titre: str, sous_titre: str = ""):
@@ -97,7 +123,7 @@ def liste_de_points(points: list[tuple[str, str]], titre: str = "") -> None:
 
     points : [(ton, texte)] avec ton ∈ fait | a_faire | risque | info. Évite d'empiler des encadrés colorés.
     """
-    with st.container(border=True):
+    with carte():
         if titre:
             st.markdown(f"**{titre}**")
         for ton, texte in points:

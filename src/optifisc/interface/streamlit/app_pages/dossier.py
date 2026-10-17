@@ -4,7 +4,7 @@ Un seul repère de navigation dans le dossier (doc 05, A.1) : les onglets d'éta
 """
 import streamlit as st
 
-from optifisc.interface.streamlit import composants, etat
+from optifisc.interface.streamlit import composants, etat, missions
 from optifisc.interface.streamlit.ecrans import (
     acomptes,
     balance,
@@ -47,6 +47,7 @@ if "etape" not in st.session_state or st.session_state["etape"] not in ECRANS:
 choix = st.segmented_control("Étape du dossier", list(ECRANS), format_func=libelles.get, key="etape",
                              required=True, label_visibility="collapsed")
 
+missions.bandeau_dans_le_dossier(app, utilisateur, dossier, choix)
 etape = next((e for e in etapes if e.id == choix), None)
 if etape is not None and not etape.accessible:
     composants.vide(f"Étape pas encore accessible : {etape.raison}")

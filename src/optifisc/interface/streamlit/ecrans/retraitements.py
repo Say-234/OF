@@ -86,7 +86,7 @@ def afficher(app, utilisateur, dossier, derniere_balance):
     if evenement.selection.rows:
         ligne = lignes[evenement.selection.rows[0]]
         regle = ref.regle(ligne.id_regle)
-        with st.container(border=True):
+        with composants.carte():
             st.markdown(f"**{regle.id.split('_')[0]} — {regle.libelle}**")
             st.caption(f"{regle.article} · " + ("règle validée par le cabinet" if regle.id in validees
                                                 else "règle à valider par le cabinet"))
@@ -104,7 +104,7 @@ def afficher(app, utilisateur, dossier, derniere_balance):
     if ref.sanctions:
         st.subheader("Hors résultat fiscal", anchor=False)
         for sanction in ref.sanctions:
-            with st.container(border=True):
+            with composants.carte():
                 st.markdown(f"**{sanction.libelle}** · {sanction.article}")
                 st.caption(sanction.explication)
                 _saisie(app, utilisateur, dossier, sanction.id, dossier.saisies.get(sanction.id), modifiable)

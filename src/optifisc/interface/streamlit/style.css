@@ -1,0 +1,61 @@
+/* OptiFisc — couche de style (doc 05, A.2 révisé le 17/10/2026).
+   La profondeur vient du contraste « fond teinté / cartes blanches arrondies » et d'une ombre très légère.
+   Les cartes sont les conteneurs créés par composants.carte() : Streamlit leur donne la classe st-key-carte-…
+   Couleurs : mêmes valeurs que .streamlit/config.toml. */
+
+:root {
+  --of-accent: #0E6B4E;
+  --of-accent-clair: #DCEFE6;
+  --of-carte: #FFFFFF;
+  --of-bordure: #DCE7E1;
+  --of-ombre: 0 1px 2px rgba(16, 35, 28, 0.05), 0 6px 16px rgba(16, 35, 28, 0.05);
+  --of-rayon: 14px;
+}
+
+/* Cartes blanches */
+div[class*="st-key-carte-"] {
+  background: var(--of-carte);
+  border-radius: var(--of-rayon) !important;
+  border-color: var(--of-bordure) !important;
+  box-shadow: var(--of-ombre);
+}
+
+/* Indicateurs (st.metric avec bordure) */
+div[data-testid="stMetric"] {
+  background: var(--of-carte);
+  border-radius: var(--of-rayon) !important;
+  border-color: var(--of-bordure) !important;
+  box-shadow: var(--of-ombre);
+}
+div[data-testid="stMetricValue"] { font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+
+/* Tableaux et graphiques posés sur une surface blanche */
+div[data-testid="stDataFrame"], div[data-testid="stVegaLiteChart"] {
+  background: var(--of-carte);
+  border-radius: 12px;
+  box-shadow: var(--of-ombre);
+}
+div[data-testid="stDataFrame"] { font-variant-numeric: tabular-nums; }
+
+/* Encadrés dépliables */
+div[data-testid="stExpander"] details { background: var(--of-carte); border-radius: 12px; }
+
+/* Navigation : l'élément actif en pastille verte pleine, comme la maquette */
+a[data-testid="stSidebarNavLink"] { border-radius: 10px; }
+a[data-testid="stSidebarNavLink"][aria-current="page"] { background: var(--of-accent) !important; }
+a[data-testid="stSidebarNavLink"][aria-current="page"] span { color: #FFFFFF !important; }
+
+/* Bloc « mission en cours » (tutoriel) : bandeau vert clair, bordure gauche d'accent */
+div[class*="st-key-mission-"] {
+  background: var(--of-accent-clair);
+  border-left: 4px solid var(--of-accent) !important;
+  border-radius: 12px !important;
+}
+
+/* Formulaires (st.form avec bordure) : même surface que les cartes */
+div[data-testid="stForm"] {
+  background: var(--of-carte);
+  border-radius: var(--of-rayon) !important;
+  border-color: var(--of-bordure) !important;
+  box-shadow: var(--of-ombre);
+}

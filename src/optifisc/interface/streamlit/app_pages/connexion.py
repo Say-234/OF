@@ -9,6 +9,7 @@ app = etat.application()
 centre = st.container(horizontal=True, horizontal_alignment="center")
 with centre.container(width=440):
     st.space("medium")
+    st.page_link("app_pages/accueil.py", label="Découvrir OptiFisc", icon=":material/arrow_back:")
     st.header("OptiFisc", anchor=False)
     st.caption("Pilotage de l'impôt sur les sociétés en cours d'exercice · CGI Bénin 2026")
     if app.mode == "demo":

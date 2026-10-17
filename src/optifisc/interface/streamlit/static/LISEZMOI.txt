@@ -1,0 +1,2 @@
+Déposer ici le logo professionnel : logo.svg (ou logo.png) et, si possible, icone.svg (version carrée).
+Polices auto-hébergées : Inter et Plus Jakarta Sans (fichiers .woff2), voir doc 05 A.4.

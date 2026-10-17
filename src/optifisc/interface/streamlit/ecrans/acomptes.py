@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import streamlit as st
 
-from optifisc.interface.streamlit import composants, formats
+from optifisc.interface.streamlit import composants, formats, graphiques
 
 from . import bandeau_fige, bouton_suite, peut_modifier
 
@@ -21,6 +21,10 @@ def afficher(app, utilisateur, dossier, derniere_balance):
     marge_decimal = Decimal(marge) / 100
     ech = app.calcul.echeancier(utilisateur, dossier.id, marge_decimal)
 
+    with composants.carte():
+        st.markdown("**Échéancier des acomptes**")
+        st.altair_chart(graphiques.acomptes(ech.echeances, ech.recommandation.acompte_demande
+                                            if ech.recommandation else None), alt="Acomptes par échéance")
     st.dataframe([{"Échéance": formats.jour(e.date), "Acompte normal (FCFA)": formats.montant(e.montant_normal),
                    "Statut": "payé" if e.payee else "à venir",
                    "Demande de réduction avant le": formats.jour(e.date_limite_demande),

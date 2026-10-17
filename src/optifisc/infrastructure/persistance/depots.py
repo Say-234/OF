@@ -253,3 +253,19 @@ class JournalSqlite:
         with self.base.connexion() as cx:
             lignes = cx.execute(requete, (*parametres, limite)).fetchall()
         return [EvenementAudit(datetime.fromisoformat(q), u, r, a, d, dos, v) for q, u, r, a, d, dos, v in lignes]
+
+
+# ------------------------------------------------------------------ préférences par utilisateur (tutoriel)
+class DepotPreferencesSqlite:
+    def __init__(self, base: BaseSqlite):
+        self.base = base
+
+    def sauver(self, email: str, cle: str, valeur: dict) -> None:
+        with self.base.connexion() as cx:
+            cx.execute("INSERT INTO preferences (email, cle, valeur) VALUES (?,?,?) "
+                       "ON CONFLICT(email, cle) DO UPDATE SET valeur = excluded.valeur", (email, cle, _en_json(valeur)))
+
+    def lire(self, email: str, cle: str) -> dict | None:
+        with self.base.connexion() as cx:
+            ligne = cx.execute("SELECT valeur FROM preferences WHERE email = ? AND cle = ?", (email, cle)).fetchone()
+        return json.loads(ligne[0]) if ligne else None

@@ -20,7 +20,7 @@ evenement = st.dataframe([{"Nom": c.nom, "E-mail": c.email, "Rôle": c.libelle_r
 
 if evenement.selection.rows:
     cible = comptes[evenement.selection.rows[0]]
-    with st.container(border=True):
+    with composants.carte():
         st.markdown(f"**{cible.nom}** · {cible.email}")
         with st.container(horizontal=True, vertical_alignment="bottom"):
             role = st.selectbox("Rôle", list(Role), index=list(Role).index(cible.role),

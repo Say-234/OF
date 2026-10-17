@@ -24,6 +24,15 @@
 
 ## Historique des sessions
 
+### 17/10/2026 — Refonte visuelle verte, accueil et journal de missions
+- **Demande de Salim** (maquette de référence) : pages trop plates ; une page d'accueil qui présente l'objectif, les rôles et l'année fiscale ; un tutoriel par rôle « comme dans un jeu vidéo », rejouable.
+- **Design** : accent vert `#0E6B4E`, fond menthe, cartes blanches arrondies avec ombre (`style.css`, `composants.carte()`), menu actif en pastille verte (doc 05, A.3 révisé). Graphiques Altair avec le skill dataviz (`graphiques.py`) : synthèse (jauge + emphase de l'impôt appliqué), calcul (cascade), acomptes (normal / demandé). Indicateurs en tête du tableau de bord.
+- **Accueil E00** (`app_pages/accueil.py`) avant la connexion, en démo et en cabinet → D4.4 révisée (doc 04, §8).
+- **Journal de missions** : `application/tutoriel.py` (missions par rôle, étapes cochées par les données), table `preferences` (migration 002), `interface/streamlit/missions.py` (carte de la barre latérale « M'y emmener », fenêtre de première connexion, bandeau dans l'onglet concerné), page « Mes missions » (recommencer).
+- **Typographie** choisie (Plus Jakarta Sans + Inter, doc 05, A.4 révisé) : fichiers de police à télécharger avec l'accord de Salim. **Logo** : à générer par Salim (prompt fourni), à déposer dans `interface/streamlit/static/`.
+- **Tests** : tutoriel, préférences, accueil, missions des 3 rôles. Captures : `scripts/captures.py` (accueil → connexion → tutoriel → écrans).
+- **À valider par Salim** : D4.9 (journal de missions), D5.10 (typographie, logo).
+
 ### 16/10/2026 — Raccourcis de démonstration et guides
 - Mode démo uniquement (refusés en cabinet, testé) : connexion en un clic par rôle (`Application.entrer_en_demo`), changement de rôle dans la barre latérale, « Tout mettre à néant » sur les retraitements (`ServiceDossiers.saisir_neant_restantes`, chaque saisie reste tracée), session de 4 h.
 - Guides : `docs/09_guide_utilisateur.md` (qui fait quoi au cabinet, circuit d'un dossier, blocages fréquents) et `docs/10_scenario_soutenance.md` (déroulé minute par minute, parades).

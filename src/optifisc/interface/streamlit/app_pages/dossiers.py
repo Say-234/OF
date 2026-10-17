@@ -1,4 +1,6 @@
 """E03 — Tableau de bord : la liste des dossiers en TABLEAU triable (doc 05, B) ; E04 — création (UC05)."""
+from decimal import Decimal
+
 import streamlit as st
 
 from optifisc.application.autorisation import peut
@@ -44,6 +46,13 @@ if not resumes:
     st.stop()
 
 compte = {e: sum(r.dossier.etat is e for r in resumes) for e in EtatDossier}
+with st.container(horizontal=True):
+    st.metric("Dossiers suivis", len(resumes), border=True)
+    st.metric("À valider", compte[EtatDossier.A_VALIDER], border=True, help="En attente de l'expert-comptable")
+    total_is = sum((r.is_du for r in resumes if r.is_du is not None), Decimal(0))
+    st.metric("IS prévisionnel cumulé", formats.millions(total_is), border=True, help="Somme des dossiers calculés")
+    st.metric("Échéances à traiter", sum(bool(r.prochaine_echeance) for r in resumes), border=True,
+              help="Demandes de réduction d'acompte possibles ou crédits d'impôt à imputer")
 groupes = {"À valider": {EtatDossier.A_VALIDER},
            "En préparation": {EtatDossier.BROUILLON, EtatDossier.EN_PREPARATION, EtatDossier.CALCULE},
            "Validés et livrés": {EtatDossier.VALIDE, EtatDossier.LIVRE}}

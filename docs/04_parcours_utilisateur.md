@@ -151,9 +151,39 @@ l'afficher, il ne décide pas lui-même si une étape est terminée.
 
 ---
 
+## 8. Accueil et journal de missions (révision du 17/10/2026)
+
+Demande de Salim : qu'une première ouverture présente l'objectif, les rôles et le fonctionnement de l'année,
+puis que chacun soit **guidé dans son rôle, comme le tutoriel d'un jeu vidéo**, avec la possibilité de le revoir.
+
+**E00 — Accueil** (`app_pages/accueil.py`). Page d'ouverture, en démo **et** en cabinet, avant la connexion ;
+rouverte ensuite par le menu « Guide › Découvrir OptiFisc ». Contenu : promesse (« Piloter l'IS pendant
+l'exercice, pas après »), trois bénéfices, **l'année fiscale** (30/06 balance → juillet calcul et leviers →
+avant le 10/08 et le 10/11 demandes de réduction d'acompte → 31/12 clôture → 30/04 N+1 déclaration), **qui fait
+quoi** (trois rôles), le parcours en quatre phases et les garanties. Bouton unique : « Se connecter ».
+
+**Journal de missions** (`application/tutoriel.py`, page « Mes missions » `app_pages/missions.py`). Chaque rôle
+reçoit des missions découpées en étapes :
+
+| Rôle | Missions |
+|---|---|
+| Collaborateur | 1. Préparer le dossier (balance, hypothèses, retraitements) · 2. Analyser l'impôt (calcul, leviers) · 3. Décider et transmettre (acomptes, soumission) |
+| Expert-comptable | 1. Revoir le dossier (lire la synthèse, valider les règles) · 2. Décider (valider ou renvoyer) · 3. Livrer au client |
+| Administrateur | 1. Organiser l'équipe (créer un compte, attribuer un dossier) · 2. Garder la trace (journal, référentiel) |
+
+- Les étapes se **cochent toutes seules** d'après les données (même règle que les coches des onglets du
+  dossier) ; seules les étapes de lecture se cochent à la main (« Marquer comme fait »).
+- Dossier de référence : le dossier ouvert, sinon le plus avancé non livré (l'expert : d'abord celui « à valider »).
+- Où il apparaît : fenêtre d'accueil à la **première connexion** (une seule fois) ; carte « Journal de missions »
+  dans la barre latérale avec le bouton **« M'y emmener »** (ouvre le bon dossier sur le bon onglet) ; bandeau
+  vert « Mission · … » en tête de l'onglet concerné ; page « Mes missions » avec « Recommencer le tutoriel ».
+- Enregistré : seulement les coches manuelles et « accueil vu » (table `preferences`, migration 002).
+  Recommencer ne touche jamais aux données des dossiers.
+
 ## Décisions à valider
 
 - [ OUI ] **D4.1** 18 écrans (E01 à E18) et leur enchaînement.
 - [ OUI ] **D4.2** Les hypothèses de projection sont un écran séparé (E07) et non une partie de l'écran Balance (comme dans la V2). Motif : distinguer clairement « ce que dit la balance » de « ce que suppose le collaborateur ».
 - [ OUI ] **D4.3** Liste de contrôle avant soumission (§3).
-- [ OUI ] **D4.4** Pas de page d'accueil publique avant la connexion (la V2 en avait une). Motif : outil interne au cabinet.
+- [ OUI ] ~~**D4.4** Pas de page d'accueil publique avant la connexion.~~ **Révisée le 17/10/2026 à la demande de Salim** : page d'accueil E00 avant la connexion (démo et cabinet), voir §8.
+- [ À valider ] **D4.9** (nouveau) Journal de missions par rôle, étapes cochées par les données, rejouable (§8).

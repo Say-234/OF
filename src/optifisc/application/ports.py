@@ -54,6 +54,14 @@ class DepotDonneesDossier(Protocol):
     def lire(self, dossier_id: str, cle: str) -> dict | None: ...
 
 
+class DepotPreferences(Protocol):
+    """Préférences par utilisateur (progression du tutoriel…)."""
+
+    def sauver(self, email: str, cle: str, valeur: dict) -> None: ...
+
+    def lire(self, email: str, cle: str) -> dict | None: ...
+
+
 class DepotScenarios(Protocol):
     def enregistrer(self, scenario: Scenario) -> None: ...
 

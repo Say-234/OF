@@ -22,6 +22,7 @@ from optifisc.application.dependances import Dependances
 from optifisc.application.dossiers import ServiceDossiers
 from optifisc.application.livrables import ServiceLivrables
 from optifisc.application.scenarios import ServiceScenarios
+from optifisc.application.tutoriel import ServiceTutoriel
 from optifisc.application.validation import ServiceValidation
 from optifisc.domaine.dossier import Ajustement, CategorieTaux, Hypotheses, Secteur
 from optifisc.domaine.erreurs import AccesRefuse
@@ -37,6 +38,7 @@ from optifisc.infrastructure.persistance.depots import (
     DepotBalancesSqlite,
     DepotDonneesDossierSqlite,
     DepotDossiersSqlite,
+    DepotPreferencesSqlite,
     DepotScenariosSqlite,
     DepotUtilisateursSqlite,
     DepotValidationsSqlite,
@@ -63,6 +65,7 @@ class Application:
     livrables: ServiceLivrables
     assistant: ServiceAssistant
     agent: ServiceAgent
+    tutoriel: ServiceTutoriel
     mode: str = "cabinet"
     aide_demo: str = ""                     # comptes de démonstration affichés sur l'écran de connexion
     mot_de_passe_demo: str = ""             # mode démo seulement : connexion en un clic pour la soutenance
@@ -110,6 +113,7 @@ def construire(chemin_base: Path | str | None = None, racine_referentiel: Path |
         donnees=DepotDonneesDossierSqlite(base), scenarios=DepotScenariosSqlite(base),
         validations=DepotValidationsSqlite(base), journal=JournalSqlite(base),
         lecteur_balance=LecteurBalanceTableur(), horloge=horloge, generateur_livrables=GenerateurOffice(),
+        preferences=DepotPreferencesSqlite(base),
     )
     comptes = ServiceComptes(DepotUtilisateursSqlite(base), MotsDePassePbkdf2(), dep.journal, horloge)
     recherche = RechercheBm25(charger_corpus(racine_referentiel / "corpus"))
@@ -119,7 +123,7 @@ def construire(chemin_base: Path | str | None = None, racine_referentiel: Path |
     app = Application(dep, comptes, ServiceDossiers(dep), ServiceBalance(dep), ServiceCalcul(dep),
                       ServiceScenarios(dep), ServiceValidation(dep), ServiceLivrables(dep),
                       ServiceAssistant(dep, recherche, ia_assistant), ServiceAgent(dep, recherche, ia_agent, reels),
-                      mode)
+                      ServiceTutoriel(dep), mode)
     if mode == "demo":
         initialiser_demonstration(app, racine_referentiel / "demo")
     return app

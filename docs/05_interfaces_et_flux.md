@@ -48,6 +48,22 @@ Constats faits sur les captures de la V2 (`OptiFisc_App/sorties/captures/`) :
 
 ### A.3 Jetons (tokens) de couleur
 
+> **Révision du 17/10/2026 — accent vert** (maquette de référence fournie par Salim : fond menthe, cartes
+> blanches arrondies). Valeurs en vigueur, définies dans `.streamlit/config.toml` et `interface/streamlit/style.css` :
+>
+> | Jeton | Valeur | Usage |
+> |---|---|---|
+> | `action` | `#0E6B4E` (vert profond) | Boutons principaux, liens, onglet et menu actifs (blanc sur vert : 6,5:1) |
+> | `fond` | `#EEF4F1` (menthe très pâle) | Fond de l'application : les cartes blanches s'en détachent |
+> | `surface` | `#FFFFFF` + ombre légère, rayon 14 px | Cartes (`composants.carte()`), tableaux, graphiques |
+> | `bordure` | `#DCE7E1` | Contours des cartes et des champs |
+> | `texte` / `texte_secondaire` | `#10231C` / `#4A5E56` | Texte principal / aides (6,2:1 sur le fond) |
+> | `accent_clair` | `#DCEFE6` | Bandeau « mission en cours » du tutoriel |
+> | graphiques | `#0B7A55` / `#4CC38A` / gris `#B9C6C0` | Paire validée par le script du skill dataviz (ΔE daltonisme 22) |
+>
+> Les couleurs de statut (succès, attention, risque, info) sont inchangées, toujours avec icône et texte.
+> Le tableau qui suit est la palette d'origine (bleue), conservée pour l'historique de la conception.
+
 Palette « B2B Service » proposée par le skill, complétée par les couleurs de statut. Elle est définie
 **une seule fois** (`interface/streamlit/composants/jetons.py`) et reprise dans `.streamlit/config.toml`.
 
@@ -68,6 +84,16 @@ Palette « B2B Service » proposée par le skill, complétée par les couleurs d
 > Material de Streamlit (`:material/check_circle:` …), jamais des emojis.
 
 ### A.4 Typographie et espacement
+
+> **Révision du 17/10/2026 — typographie.** Titres : **Plus Jakarta Sans** (600-700), géométrique et
+> chaleureuse, proche de la maquette. Texte, tableaux et montants : **Inter** (400-600), très lisible en petite
+> taille, **chiffres tabulaires** (colonnes de montants alignées). Deux polices libres (licence SIL OFL),
+> **hébergées dans l'application** (`interface/streamlit/static/`) : aucun appel à Google Fonts, l'application
+> reste utilisable hors ligne au cabinet. Tant que les fichiers ne sont pas déposés, la police de Streamlit
+> s'applique (lignes `font` / `headingFont` commentées dans `config.toml`). Icônes : **Material Symbols**
+> (`:material/…:`), la bibliothèque intégrée à Streamlit ; jamais d'emoji. Logo : fichier professionnel
+> `static/logo.svg` (+ `static/icone.svg`), affiché automatiquement par `composants.preparer_page()`.
+> La liste ci-dessous est la version d'origine.
 
 - Police : celle de Streamlit (Source Sans), chiffres tabulaires pour les montants.
 - Échelle de tailles : 12 (métadonnées) · 14 (tableaux, aides) · 16 (texte) · 20 (titre de section) · 24 (titre d'écran).
@@ -401,7 +427,9 @@ enregistré tant que le collaborateur n'a pas lu le rapport de lecture.
 - [ OUI ] **D5.1** Design system de la V2 conservé (statut par la couleur, bleu réservé aux actions, sobriété, hors ligne).
 - [ ✔ Révisé le 14/10 (commentaire d'origine : « A revoire ») ] **D5.2** Maquettes E03, E05, E08, E10, E14 et E15 comme base de l'intégration Streamlit.
 - [ OUI ] **D5.6** (nouveau) Diagnostic A.1 et principes A.2 : natif Streamlit d'abord, une action principale par écran, tableaux plutôt que cartes, mode clair uniquement.
-- [ OUI ] **D5.7** (nouveau) Palette A.3 (marine + bleu d'action) et trois schémas d'écran (liste, maître-détail, formulaire).
+- [ OUI ] **D5.7** (nouveau) Palette A.3 (marine + bleu d'action) et trois schémas d'écran (liste, maître-détail, formulaire). **Révisée le 17/10/2026** : accent vert, cartes blanches sur fond menthe (A.3 révisé).
+- [ OUI ] **D5.9** (17/10) Graphiques avec retenue (Altair, skill dataviz) : jauge d'avancement, emphase de l'impôt appliqué, cascade du résultat fiscal, acomptes. Toujours un tableau à côté.
+- [ À valider ] **D5.10** (17/10) Typographie Plus Jakarta Sans + Inter hébergées localement ; icônes Material ; logo professionnel fourni par Salim.
 - [ OUI ] **D5.8** (nouveau) Panneau « Propositions de l'agent » séparé visuellement sur l'écran Leviers (E10).
 - [ OUI ] **D5.3** Les cinq règles de circulation (C.1), en particulier : pas de résultat de calcul dans `session_state`.
 - [ OUI ] **D5.4** Import de balance en deux temps (aperçu, puis confirmation).

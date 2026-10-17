@@ -3,7 +3,7 @@ import streamlit as st
 
 from optifisc.domaine.balance import Niveau
 from optifisc.domaine.dossier import EtatDossier
-from optifisc.interface.streamlit import composants, formats
+from optifisc.interface.streamlit import composants, formats, graphiques
 
 from . import bandeau_fige, bouton_suite, peut_modifier
 
@@ -29,6 +29,11 @@ def afficher(app, utilisateur, dossier, derniere_balance):
                   help=f"{formats.pourcentage(r.taux_minimum)} des produits encaissables, plancher inclus")
         st.metric("IS dû", formats.montant(r.is_du, unite=True), border=True, help=f"Régime : {r.regime}")
 
+    with composants.carte():
+        st.markdown("**Du résultat comptable au résultat fiscal**")
+        st.altair_chart(graphiques.passage_resultat(r.resultat_comptable, r.reintegrations, r.deductions,
+                                                    r.deficit_impute, r.resultat_fiscal),
+                        alt="Cascade du résultat comptable au résultat fiscal")
     st.subheader("Tableau de passage", anchor=False)
     passage = [
         ("A", "Résultat comptable projeté au 31/12", "SYSCOHADA", r.resultat_comptable),

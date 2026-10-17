@@ -33,7 +33,7 @@ if envoye and question.strip():
                              f"{'■' * pleins}{'□' * (5 - pleins)}"):
                 st.write(t.article.texte)
     with reponse:
-        with st.container(border=True):
+        with composants.carte():
             st.markdown("**Proposition de réponse**")
             if not ia.disponible:
                 st.caption("IA désactivée.")

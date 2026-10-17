@@ -25,7 +25,7 @@ def _formulaire(app, dossier, resultat, levier):
     """Paramètres d'un levier et ses conditions légales. Renvoie les paramètres saisis, ou None si invalides."""
     p = {}
     cle = f"{dossier.id}_{levier.id}"
-    with st.container(border=True):
+    with composants.carte():
         st.markdown(f"**{levier.libelle}** · {levier.article}")
         st.caption(levier.effet)
         montant, valide = composants.champ_montant("Montant HT" if levier.id in SIMULABLES[:2] else "Montant",
@@ -95,7 +95,7 @@ def afficher(app, utilisateur, dossier, derniere_balance):
             simulation = composants.executer(lambda: app.scenarios.simuler(utilisateur, dossier.id, choix))
             effets = composants.executer(lambda: app.scenarios.effets(utilisateur, dossier.id, choix)) or []
             for effet in effets:
-                with st.container(border=True):
+                with composants.carte():
                     with st.container(horizontal=True, vertical_alignment="center"):
                         st.markdown(f"**{effet.libelle}** · {effet.article}")
                         if effet.bloquant:
@@ -130,7 +130,7 @@ def afficher(app, utilisateur, dossier, derniere_balance):
         if not scenarios:
             st.caption("Aucun scénario enregistré (3 au plus).")
         for s in scenarios:
-            with st.container(border=True, horizontal=True, vertical_alignment="center"):
+            with composants.carte(horizontal=True, vertical_alignment="center"):
                 st.markdown(f"**Scénario {s.nom}** · {', '.join(lv.id_levier[:3] for lv in s.leviers)} · gain "
                             f"{formats.montant(s.gain_is, True)}")
                 if s.retenu:

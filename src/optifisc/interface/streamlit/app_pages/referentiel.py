@@ -31,7 +31,7 @@ evenement = st.dataframe([{"Réf.": r.id.split("_")[0], "Règle": r.libelle, "Ar
 
 if evenement.selection.rows:
     regle = regles[evenement.selection.rows[0]]
-    with st.container(border=True):
+    with composants.carte():
         st.markdown(f"**{regle.id} — {regle.libelle}** · {regle.article}")
         details = {"Type": TYPES[regle.type.value], "Sens": regle.sens.value.replace("reintegration", "réintégration"),
                    "Catégorie": next(c.libelle for c in ref.categories if c.id == regle.categorie)}

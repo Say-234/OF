@@ -10,6 +10,7 @@ from .ports import (
     DepotBalances,
     DepotDonneesDossier,
     DepotDossiers,
+    DepotPreferences,
     DepotScenarios,
     DepotValidationsRegles,
     GenerateurLivrables,
@@ -31,6 +32,7 @@ class Dependances:
     lecteur_balance: LecteurBalance
     horloge: Horloge
     generateur_livrables: GenerateurLivrables | None = None
+    preferences: DepotPreferences | None = None
 
     def tracer(self, utilisateur: Utilisateur | None, action: str, detail: str = "", dossier_id: str = "") -> None:
         self.journal.ajouter(EvenementAudit(

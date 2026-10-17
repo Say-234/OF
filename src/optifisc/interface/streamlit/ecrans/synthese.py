@@ -4,7 +4,7 @@ import streamlit as st
 from optifisc.application.autorisation import peut
 from optifisc.domaine.balance import Niveau
 from optifisc.domaine.dossier import EtatDossier
-from optifisc.interface.streamlit import composants, etat, formats
+from optifisc.interface.streamlit import composants, etat, formats, graphiques
 
 
 @st.dialog("Valider le dossier")
@@ -56,6 +56,26 @@ def afficher(app, utilisateur, dossier, derniere_balance):
         st.metric("Gain du scénario retenu", formats.montant(retenu.gain_is, unite=True) if retenu else "—",
                   border=True, help=f"Scénario {retenu.nom}" if retenu else "Aucun scénario retenu")
 
+    # Jauge d'avancement (un ratio = une jauge) et comparaison IS / minimum (emphase sur le montant appliqué)
+    etapes = app.dossiers.etapes(dossier)
+    faites = sum(e.faite for e in etapes)
+    jauge, impot = st.columns([1, 2], gap="medium")
+    with jauge:
+        with composants.carte():
+            st.markdown("**Avancement du dossier**")
+            st.progress(faites / len(etapes), text=f"{faites} / {len(etapes)} étapes terminées")
+            prochaine = next((e for e in etapes if not e.faite and e.accessible), None)
+            if prochaine:
+                st.caption(f"Prochaine étape : {prochaine.numero} {prochaine.libelle}")
+            else:
+                st.caption("Toutes les étapes sont faites.")
+    with impot:
+        with composants.carte():
+            st.markdown("**Quel impôt s'applique ?**")
+            st.altair_chart(graphiques.emphase_impot(resultat.is_droit_commun, resultat.minimum_perception,
+                                                     resultat.au_minimum), alt="IS de droit commun comparé au "
+                            "minimum de perception ; le plus élevé est dû")
+
     # Points d'attention regroupés dans un seul cadre (une ligne chacun) plutôt qu'une pile d'encadrés colorés
     non_validees = app.validation.regles_non_validees_utilisees(resultat)
     renvoi = app.dependances.donnees.lire(dossier.id, "renvoi")
@@ -76,7 +96,7 @@ def afficher(app, utilisateur, dossier, derniere_balance):
     with gauche:
         composants.liste_de_points(points or [("fait", "Aucun point d'attention")], "Points d'attention")
     with droite:
-        with st.container(border=True):
+        with composants.carte():
             st.markdown("**Derniers événements**")
             for evenement in app.dossiers.journal(utilisateur, dossier.id, 4):
                 st.caption(f"{formats.horodatage(evenement.quand)} · {composants.nom(app, evenement.utilisateur)}"

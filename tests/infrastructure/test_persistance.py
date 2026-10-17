@@ -16,6 +16,7 @@ from optifisc.infrastructure.persistance.depots import (
     DepotBalancesSqlite,
     DepotDonneesDossierSqlite,
     DepotDossiersSqlite,
+    DepotPreferencesSqlite,
     DepotScenariosSqlite,
     DepotUtilisateursSqlite,
     DepotValidationsSqlite,
@@ -36,7 +37,7 @@ def test_migrations_appliquees_une_seule_fois(tmp_path):
     BaseSqlite(chemin)
     BaseSqlite(chemin)                                       # une deuxième ouverture ne rejoue pas le schéma
     with sqlite3.connect(chemin) as cx:
-        assert cx.execute("PRAGMA user_version").fetchone()[0] == 1
+        assert cx.execute("PRAGMA user_version").fetchone()[0] == 2   # 001 schéma, 002 préférences
 
 
 def test_dossier_aller_retour_exact(base):
@@ -119,3 +120,12 @@ def test_politique_de_mot_de_passe_8_caracteres(mot_de_passe, acceptable):
 def test_mot_de_passe_genere_respecte_la_politique():
     service = MotsDePassePbkdf2()
     assert service.probleme(service.generer()) is None
+
+
+def test_preferences_par_utilisateur(base):
+    depot = DepotPreferencesSqlite(base)
+    assert depot.lire("a@x.bj", "tutoriel") is None
+    depot.sauver("a@x.bj", "tutoriel", {"vu": True, "faites": ["journal"]})
+    depot.sauver("a@x.bj", "tutoriel", {"vu": True, "faites": []})          # remplace, ne duplique pas
+    assert depot.lire("a@x.bj", "tutoriel") == {"vu": True, "faites": []}
+    assert depot.lire("b@x.bj", "tutoriel") is None

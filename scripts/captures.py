@@ -8,6 +8,7 @@ Utilise le Chrome installé sur le poste (Playwright, canal « chrome ») : aucu
 import argparse
 from pathlib import Path
 
+from playwright.sync_api import TimeoutError as PlaywrightTimeout
 from playwright.sync_api import sync_playwright
 
 SORTIE = Path(__file__).resolve().parents[1] / "var" / "captures"
@@ -49,21 +50,31 @@ def main():
 
 def parcourir(page, args):
     page.goto(args.url)
-    page.get_by_label("E-mail").wait_for(timeout=60_000)
+    page.get_by_role("button", name="Se connecter").first.wait_for(timeout=60_000)
+    capturer(page, "00_accueil")
+    page.get_by_role("button", name="Se connecter").first.click()
+    page.get_by_label("E-mail").wait_for(timeout=30_000)
     capturer(page, "01_connexion")
     page.get_by_label("E-mail").fill(args.email)
     page.get_by_label("Mot de passe").fill(args.mot_de_passe)
     page.get_by_role("button", name="Se connecter").click()
+    dialogue = page.get_by_role("dialog")                 # accueil du tutoriel : à la PREMIÈRE connexion seulement
+    try:
+        dialogue.wait_for(timeout=15_000)
+        capturer(page, "01b_tutoriel")
+        dialogue.get_by_role("button", name="Plus tard").click()
+    except PlaywrightTimeout:
+        print("accueil du tutoriel déjà vu : pas de capture")
     tableau = page.locator("[data-testid='stDataFrame']").first
     tableau.wait_for(timeout=30_000)
     capturer(page, "02_dossiers")
     tableau.click(position={"x": 14, "y": 89})          # case de sélection de la 2e ligne (dossier calculé)
-    onglets = page.locator("[data-testid='stButtonGroup']").first
+    onglets = page.locator("[data-testid='stMain'] [data-testid='stButtonGroup']").first   # pas la barre latérale
     onglets.wait_for(timeout=30_000)
     for i, etape in enumerate(ETAPES, 3):
         onglets.get_by_text(etape, exact=False).first.click()
         capturer(page, f"{i:02d}_{etape.split()[-1].lower()}")
-    for i, lien in enumerate(["Référentiel des règles", "Journal d'audit", "Assistant CGI"], 11):
+    for i, lien in enumerate(["Référentiel des règles", "Journal d'audit", "Assistant CGI", "Mes missions"], 11):
         page.get_by_role("link", name=lien).click()
         capturer(page, f"{i:02d}_{lien.split()[0].lower()}")
 
