@@ -93,7 +93,8 @@ def fournisseur_ia(usage: str = "ASSISTANT"):
     """
     if os.environ.get("OPTIFISC_IA", "desactivee") == "openrouter":
         modele = os.environ.get(f"OPENROUTER_MODELE_{usage}") or os.environ.get("OPENROUTER_MODELE", "")
-        return OpenRouter(os.environ.get("OPENROUTER_API_KEY", ""), modele)
+        secours = tuple(os.environ.get("OPENROUTER_MODELES_SECOURS", "").split(","))
+        return OpenRouter(os.environ.get("OPENROUTER_API_KEY", ""), modele, secours=secours)
     return IADesactivee()
 
 

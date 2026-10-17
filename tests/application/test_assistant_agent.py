@@ -191,3 +191,36 @@ def test_un_modele_par_usage(monkeypatch):
     monkeypatch.setenv("OPENROUTER_MODELE_AGENT", "nvidia/nemotron-3-super-120b-a12b:free")
     assert fournisseur_ia("ASSISTANT").modele.startswith("google/")
     assert fournisseur_ia("AGENT").modele.startswith("nvidia/")
+
+
+def test_modele_de_secours_payant_refuse():
+    from optifisc.infrastructure.openrouter import OpenRouter
+    ia = OpenRouter("cle-de-test", "google/gemma-4-31b-it:free", secours=("openai/gpt-5",))
+    with pytest.raises(IAIndisponible, match="gratuit"):
+        ia.discuter([{"role": "user", "content": "test"}])           # refusé AVANT tout appel réseau
+
+
+def test_saturation_bascule_puis_une_seule_nouvelle_tentative(monkeypatch):
+    from optifisc.infrastructure import openrouter
+
+    class Reponse:
+        def __init__(self, code):
+            self.status_code = code
+
+        def json(self):
+            return {"choices": [{"message": {"content": "réponse"}}]}
+
+    envois = []
+
+    def faux_post(url, timeout, json, headers):
+        envois.append(json)
+        return Reponse(429 if len(envois) == 1 else 200)
+
+    monkeypatch.setattr(openrouter.requests, "post", faux_post)
+    monkeypatch.setattr(openrouter.time, "sleep", lambda s: None)
+    ia = openrouter.OpenRouter("cle", "google/gemma-4-31b-it:free",
+                               secours=("google/gemma-4-26b-a4b-it:free", "google/gemma-4-31b-it:free"))
+    assert ia.discuter([{"role": "user", "content": "test"}]) == "réponse"
+    assert len(envois) == 2
+    # le principal en tête, sans doublon : OpenRouter essaie les suivants s'il est saturé
+    assert envois[0]["models"] == ["google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free"]
