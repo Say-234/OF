@@ -14,7 +14,12 @@ MIGRATIONS = Path(__file__).parent / "migrations"
 class BaseSqlite:
     def __init__(self, chemin: Path | str):
         self.chemin = Path(chemin)
-        self.chemin.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            self.chemin.parent.mkdir(parents=True, exist_ok=True)
+        except PermissionError:
+            # Streamlit Cloud : /tmp est le seul répertoire writable
+            self.chemin = Path("/tmp") / self.chemin.name
+            self.chemin.parent.mkdir(parents=True, exist_ok=True)
         self._migrer()
 
     @contextmanager
