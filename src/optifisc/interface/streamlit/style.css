@@ -1,15 +1,23 @@
-/* OptiFisc — couche de style (doc 05, A.2 révisé le 17/10/2026).
-   La profondeur vient du contraste « fond teinté / cartes blanches arrondies » et d'une ombre très légère.
-   Les cartes sont les conteneurs créés par composants.carte() : Streamlit leur donne la classe st-key-carte-…
-   Couleurs : mêmes valeurs que .streamlit/config.toml. */
+/* OptiFisc - couche de style (refonte UI/UX 18/10/2026). */
 
 :root {
   --of-accent: #0E6B4E;
   --of-accent-clair: #DCEFE6;
+  --of-accent-fonce: #074935;
   --of-carte: #FFFFFF;
+  --of-fond: #F4F9F6;
   --of-bordure: #DCE7E1;
-  --of-ombre: 0 1px 2px rgba(16, 35, 28, 0.05), 0 6px 16px rgba(16, 35, 28, 0.05);
-  --of-rayon: 14px;
+  --of-texte: #10231C;
+  --of-texte-secondaire: #4A5E56;
+  --of-ombre: 0 2px 8px rgba(16, 35, 28, 0.06), 0 8px 24px rgba(16, 35, 28, 0.06);
+  --of-ombre-forte: 0 4px 16px rgba(16, 35, 28, 0.10), 0 12px 40px rgba(16, 35, 28, 0.08);
+  --of-rayon: 16px;
+  --of-rayon-petit: 10px;
+}
+
+/* Fond global */
+html, body, [data-testid="stAppViewContainer"] {
+  background: var(--of-fond) !important;
 }
 
 /* Cartes blanches */
@@ -20,16 +28,21 @@ div[class*="st-key-carte-"] {
   box-shadow: var(--of-ombre);
 }
 
-/* Indicateurs (st.metric avec bordure) */
+/* Indicateurs (st.metric) */
 div[data-testid="stMetric"] {
   background: var(--of-carte);
   border-radius: var(--of-rayon) !important;
   border-color: var(--of-bordure) !important;
   box-shadow: var(--of-ombre);
 }
-div[data-testid="stMetricValue"] { font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+div[data-testid="stMetricValue"] {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--of-texte);
+}
+div[data-testid="stMetricLabel"] { color: var(--of-texte-secondaire); }
 
-/* Tableaux et graphiques posés sur une surface blanche */
+/* Tableaux et graphiques */
 div[data-testid="stDataFrame"], div[data-testid="stVegaLiteChart"] {
   background: var(--of-carte);
   border-radius: 12px;
@@ -40,22 +53,55 @@ div[data-testid="stDataFrame"] { font-variant-numeric: tabular-nums; }
 /* Encadrés dépliables */
 div[data-testid="stExpander"] details { background: var(--of-carte); border-radius: 12px; }
 
-/* Navigation : l'élément actif en pastille verte pleine, comme la maquette */
+/* Navigation : élément actif en pastille verte */
 a[data-testid="stSidebarNavLink"] { border-radius: 10px; }
-a[data-testid="stSidebarNavLink"][aria-current="page"] { background: var(--of-accent) !important; }
+a[data-testid="stSidebarNavLink"][aria-current="page"] {
+  background: var(--of-accent) !important;
+  box-shadow: var(--of-ombre-forte);
+}
 a[data-testid="stSidebarNavLink"][aria-current="page"] span { color: #FFFFFF !important; }
 
-/* Bloc « mission en cours » (tutoriel) : bandeau vert clair, bordure gauche d'accent */
+/* Bloc « mission en cours » */
 div[class*="st-key-mission-"] {
   background: var(--of-accent-clair);
   border-left: 4px solid var(--of-accent) !important;
   border-radius: 12px !important;
 }
 
-/* Formulaires (st.form avec bordure) : même surface que les cartes */
+/* Formulaires */
 div[data-testid="stForm"] {
   background: var(--of-carte);
   border-radius: var(--of-rayon) !important;
   border-color: var(--of-bordure) !important;
   box-shadow: var(--of-ombre);
+}
+
+/* Focus visible (accessibilité) */
+*:focus-visible {
+  outline: 3px solid var(--of-accent-clair) !important;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Boutons primaires : accent */
+button[data-testid="stButtonPrimary"] {
+  background: var(--of-accent) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+}
+button[data-testid="stButtonPrimary"]:hover {
+  background: var(--of-accent-fonce) !important;
+}
+
+/* Badges */
+div[data-testid="stBadge"] { border-radius: 8px !important; }
+
+/* Sidebar */
+[data-testid="stSidebar"] { background: var(--of-fond); }
+
+/* Responsive : écrans mobiles */
+@media (max-width: 768px) {
+  div[class*="st-key-carte-"] { border-radius: 10px !important; }
+  div[data-testid="stMetric"] { border-radius: 10px !important; }
 }

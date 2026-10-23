@@ -40,6 +40,12 @@ def _rouvrir(app, utilisateur, dossier):
 
 
 def afficher(app, utilisateur, dossier, derniere_balance):
+    # --- En-tête d'identité du dossier
+    composants.entete_dossier(dossier,
+                              app.referentiel.parametres.libelles_secteur[dossier.secteur.value].split(" (")[0],
+                              derniere_balance[2] if derniere_balance else None,
+                              composants.nom(app, dossier.responsable))
+
     if derniere_balance is None:
         composants.vide("Commencez par importer la balance du client (étape 1).")
         st.button("Importer la balance", type="primary", icon=":material/upload_file:",

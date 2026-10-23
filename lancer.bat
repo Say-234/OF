@@ -8,6 +8,9 @@ if not exist ".venv\Scripts\python.exe" (
     ".venv\Scripts\python.exe" -m pip install --upgrade pip
     ".venv\Scripts\python.exe" -m pip install -e .
 )
+if exist ".env.demo" (
+    if not exist ".env" copy ".env.demo" ".env" >nul
+)
 if not exist ".env" copy ".env.exemple" ".env" >nul
 ".venv\Scripts\python.exe" -m streamlit run src\optifisc\interface\streamlit\app.py --server.address localhost --server.port 8501
 pause

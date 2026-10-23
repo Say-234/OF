@@ -109,4 +109,18 @@ with droite, composants.carte():
 
 with st.container(horizontal=True, horizontal_alignment="center"):
     bouton_principal("bas")
+
+# ------------------------------------------------------------------ Tutoriel interactif
+if utilisateur is None or app.mode == "demo":
+    with composants.carte():
+        st.markdown("#### :primary[:material/rocket:] Votre premier pas")
+        st.markdown("Suivez le **journal de missions** (avec le bouton « Mes missions » ci‑dessus) pour un "
+                    "parcours guidé pas à pas, comme dans un jeu vidéo. Les étapes se cochent toutes seules "
+                    "au fur et à mesure de votre travail.")
+        if app.mode == "demo":
+            st.markdown("En mode **démonstration**, cliquez sur « Se connecter » puis sur l'un des rôles ci‑dessous "
+                        "pour commencer immédiatement.")
+        if utilisateur is None:
+            st.markdown("Connecté·e·s au **poste du cabinet** ? Rendez‑vous dans **« Mes missions »** (menu latéral) "
+                        "une fois authentifié·e.")
 composants.pied_de_page()

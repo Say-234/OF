@@ -51,6 +51,15 @@ if utilisateur is not None:
                     etat.ouvrir_dossier(dossier_ouvert, etat.etape())
                 st.rerun()
         if not utilisateur.doit_changer_mot_de_passe:
+            # Barre d'avancement globale
+            if etat.dossier_id():
+                dossier = app.dossiers.charger(etat.dossier_id()) if hasattr(app.dossiers, 'charger') else None
+                if dossier is not None:
+                    etas = app.dossiers.etapes(dossier)
+                    total = len(etas)
+                    faites = sum(1 for e in etas if e.faite)
+                    st.progress(faites / total if total else 0, text=f"{faites}/{total} étapes")
+            # Journal de missions
             missions.resume_barre_laterale(app, utilisateur)
         st.markdown(f"**{utilisateur.nom}**  \n:gray[{utilisateur.libelle_role}]")
         if st.button("Se déconnecter", icon=":material/logout:", type="tertiary"):

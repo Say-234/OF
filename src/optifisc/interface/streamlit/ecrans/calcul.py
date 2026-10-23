@@ -3,23 +3,25 @@ import streamlit as st
 
 from optifisc.domaine.balance import Niveau
 from optifisc.domaine.dossier import EtatDossier
-from optifisc.interface.streamlit import composants, formats, graphiques
+from optifisc.interface.streamlit import composants, etat, formats, graphiques
 
 from . import bandeau_fige, bouton_suite, peut_modifier
 
 
 def afficher(app, utilisateur, dossier, derniere_balance):
-    actions = composants.entete("Calcul de l'impôt", "IS de droit commun (art. 46) comparé au minimum de "
-                                                     "perception (art. 47) ; le plus élevé est dû.")
-    with actions:
-        if dossier.etat is EtatDossier.EN_PREPARATION and peut_modifier(utilisateur, dossier):
-            if st.button("Calculer", type="primary", icon=":material/calculate:"):
-                if composants.executer(lambda: app.calcul.calculer(utilisateur, dossier.id), "Calcul effectué"):
-                    st.rerun()
-    bandeau_fige(dossier)
-    if dossier.etat is EtatDossier.EN_PREPARATION:
-        st.warning("Le calcul n'est pas à jour : des données ont été saisies ou modifiées. Cliquez sur « Calculer ».",
-                   icon=":material/sync_problem:")
+    if derniere_balance is None:
+        with composants.carte():
+            composants.vide("Commencez par importer la balance du client (étape 1).")
+            st.button("Importer la balance", type="primary", icon=":material/upload_file:",
+                      on_click=etat.aller_a_l_etape, args=("balance",), use_container_width=True)
+        return
+
+    # En-tête d'identité du dossier
+    composants.entete_dossier(dossier,
+                              app.referentiel.parametres.libelles_secteur[dossier.secteur.value].split(" (")[0],
+                              derniere_balance[2] if derniere_balance else None,
+                              composants.nom(app, dossier.responsable))
+
     r = app.calcul.resultat(utilisateur, dossier.id)
 
     with st.container(horizontal=True):

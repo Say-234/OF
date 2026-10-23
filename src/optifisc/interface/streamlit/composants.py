@@ -184,3 +184,18 @@ def pied_de_page() -> None:
     st.divider()
     st.caption("OptiFisc · CGI Bénin 2026 · Les montants sont calculés par le moteur de règles ; "
                "l'IA ne calcule jamais l'impôt. Aide à la décision, à valider par l'expert-comptable.")
+
+
+def barre_avancement(fait: int, total: int, titre: str = "") -> None:
+    """Barre d'avancement pour le tableau de bord : progress + étiquette."""
+    ratio = fait / total if total else 0
+    with st.container(horizontal=True):
+        col1, col2, col3 = st.columns([4, 10, 6])
+        with col1:
+            if titre:
+                st.markdown(f"**{titre}**")
+        with col2:
+            st.progress(ratio, color="#0E6B4E", height=36, label=f"{fait}/{total}")
+        with col3:
+            etiquette = f"{fait * 100 // total}% (dossiers)" if total else "Aucun dossier"
+            st.caption(etiquette)

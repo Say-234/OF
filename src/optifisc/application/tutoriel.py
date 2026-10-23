@@ -86,8 +86,8 @@ def _e(id_: str, titre: str, consigne: str, page: str, etape_dossier: str = "", 
 MISSIONS: dict[Role, list[tuple[str, str, str, list[tuple]]]] = {
     Role.COLLABORATEUR: [
         ("c1", "Préparer le dossier", "Donner au moteur des données fiables.", [
-            _e("balance", "Importer la balance", "Déposez la balance au 30/06 (Excel ou CSV) : OptiFisc la contrôle "
-               "et projette l'année.", "dossier", "balance"),
+            _e("balance", "Importer la balance", "Déposez le fichier Excel/CSV au 30/06. OptiFisc contrôle les colonnes, "
+               "projette l'année et affiche le rapport de lecture avant confirmation.", "dossier", "balance"),
             _e("hypotheses", "Confirmer les hypothèses", "Vérifiez la méthode de projection et le régime, puis "
                "confirmez.", "dossier", "hypotheses"),
             _e("retraitements", "Compléter les retraitements", "Saisissez les montants que la balance ne donne pas "
@@ -96,8 +96,8 @@ MISSIONS: dict[Role, list[tuple[str, str, str, list[tuple]]]] = {
         ("c2", "Analyser l'impôt", "Comprendre d'où vient l'IS et comment l'alléger légalement.", [
             _e("calcul", "Calculer l'IS prévisionnel", "Lancez le calcul et lisez le passage du résultat comptable "
                "au résultat fiscal.", "dossier", "calcul"),
-            _e("leviers", "Étudier les leviers", "Comparez les scénarios, demandez des propositions à l'agent, puis "
-               "enregistrez votre décision.", "dossier", "leviers"),
+            _e("leviers", "Étudier les leviers", "Comparez les scénarios d'optimisation (leviers du catalogue). "
+               "Demandez des propositions à l'agent IA (analyse pseudonymisée du dossier), puis enregistrez votre décision.", "dossier", "leviers"),
         ]),
         ("c3", "Décider et transmettre", "Préserver la trésorerie et passer la main à l'expert.", [
             _e("acomptes", "Décider des acomptes", "Choisissez de demander ou non une réduction d'acompte au DGI.",

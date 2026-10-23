@@ -133,7 +133,7 @@ def construire(chemin_base: Path | str | None = None, racine_referentiel: Path |
 # ------------------------------------------------------------------ mode démonstration (doc 06, §4.5)
 COMPTES_DEMO = (("admin@demo.bj", "Administrateur (démo)", Role.ADMIN),
                 ("expert@demo.bj", "Expert-comptable (démo)", Role.EXPERT),
-                ("salim@demo.bj", "Salim A. (démo)", Role.COLLABORATEUR))
+                ("test@demo.bj", "Test Collaborateur (démo)", Role.COLLABORATEUR))
 
 
 def initialiser_demonstration(app: Application, dossier_demo: Path) -> None:
@@ -147,7 +147,7 @@ def initialiser_demonstration(app: Application, dossier_demo: Path) -> None:
         service = MotsDePassePbkdf2()
         for email, nom, role in COMPTES_DEMO:
             app.comptes.utilisateurs.ajouter(Utilisateur(email, nom, role), *service.hacher(mot_de_passe))
-        collaborateur = app.comptes.utilisateurs.charger("salim@demo.bj")
+        collaborateur = app.comptes.utilisateurs.charger("test@demo.bj")
         demos = yaml.safe_load((dossier_demo / "demos.yaml").read_text(encoding="utf-8"))["dossiers"]
         for d in demos:
             dossier = app.dossiers.creer(collaborateur, d["raison_sociale"], Secteur(d["secteur"]),
