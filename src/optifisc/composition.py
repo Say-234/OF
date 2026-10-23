@@ -102,7 +102,12 @@ def construire(chemin_base: Path | str | None = None, racine_referentiel: Path |
                horloge=None, mode: str | None = None, fournisseur=None) -> Application:
     load_dotenv(RACINE_PROJET / ".env")               # réglages locaux (clé d'API…) : jamais dans le code
     mode = mode or os.environ.get("OPTIFISC_MODE", "cabinet")
-    chemin_base = chemin_base or os.environ.get("OPTIFISC_BASE") or RACINE_PROJET / "var" / f"optifisc_{mode}.sqlite"
+    chemin_base = chemin_base or os.environ.get("OPTIFISC_BASE")
+    if not chemin_base:
+        if mode == "demo":
+            chemin_base = Path("/tmp") / f"optifisc_{mode}.sqlite"
+        else:
+            chemin_base = RACINE_PROJET / "var" / f"optifisc_{mode}.sqlite"
     racine_referentiel = racine_referentiel or RACINE_PROJET / "referentiel"
     horloge = horloge or HorlogeSysteme()
     if mode == "demo":
