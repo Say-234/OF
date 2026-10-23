@@ -11,4 +11,10 @@ __pycache__/
 .env.demo
 
 # données de travail : base SQLite, livrables générés, journaux
-var/
+# var/ est versionné pour .gitkeep (SQLite dans var/ au runtime)
+var/*.sqlite3
+var/*.sqlite
+var/*.db
+var/logs/
+var/livrables/
+var/captures/
