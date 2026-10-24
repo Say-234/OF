@@ -51,6 +51,9 @@ from optifisc.infrastructure.securite import MotsDePassePbkdf2
 RACINE_PROJET = Path(__file__).resolve().parents[2]
 MILLESIME = 2026
 
+# Chemin du dossier referentiel : peut être forcé par OPTIFISC_REFERENTIEL (Streamlit Cloud)
+REFERENTIEL = Path(os.environ.get("OPTIFISC_REFERENTIEL")) if os.environ.get("OPTIFISC_REFERENTIEL") else RACINE_PROJET / "referentiel"
+
 
 @dataclass
 class Application:
@@ -108,7 +111,7 @@ def construire(chemin_base: Path | str | None = None, racine_referentiel: Path |
             chemin_base = Path("/tmp") / f"optifisc_{mode}.sqlite"
         else:
             chemin_base = RACINE_PROJET / "var" / f"optifisc_{mode}.sqlite"
-    racine_referentiel = racine_referentiel or RACINE_PROJET / "referentiel"
+    racine_referentiel = racine_referentiel or REFERENTIEL
     horloge = horloge or HorlogeSysteme()
     if mode == "demo":
         Path(chemin_base).unlink(missing_ok=True)       # démonstration : base fictive recréée à chaque démarrage
