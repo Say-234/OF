@@ -2,10 +2,9 @@
 import streamlit as st
 
 from optifisc.domaine.balance import Niveau
-from optifisc.domaine.dossier import EtatDossier
 from optifisc.interface.streamlit import composants, etat, formats, graphiques
 
-from . import bandeau_fige, bouton_suite, peut_modifier
+from . import bouton_suite
 
 
 def afficher(app, utilisateur, dossier, derniere_balance):

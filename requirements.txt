@@ -1,2 +1,3 @@
-# Pour Streamlit Community Cloud : installe le paquet du projet et ses dépendances (déclarées dans pyproject.toml).
-.
+# Pour Streamlit Community Cloud : installe le paquet en mode éditable avec ses dépendances (pyproject.toml).
+-e .
+

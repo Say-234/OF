@@ -48,32 +48,54 @@ from optifisc.infrastructure.recherche_bm25 import RechercheBm25
 from optifisc.infrastructure.referentiel_yaml import ReferentielYaml
 from optifisc.infrastructure.securite import MotsDePassePbkdf2
 
-def _racine_projet() -> Path:
-    """Résolve le chemin racine du projet quel que soit l'environnement (local / Streamlit Cloud).
 
-    Ordre de préférence :
-    1. Variable d'environnement OPTIFISC_RACINE_PROJET (si elle pointe vers un dossier existant)
-    2. /mount/src/of (montage standard Streamlit Cloud)
-    3. Parents du fichier __file__ (développement local)
-    """
-    # 1. Variable d'environnement
+def _racine_projet() -> Path:
+    """Résout le chemin racine du projet quel que soit l'environnement (local / Streamlit Cloud)."""
+    # 1. Variable d'environnement explicite
     env = os.environ.get("OPTIFISC_RACINE_PROJET")
+    if env and Path(env).is_dir():
+        return Path(env)
+
+    # 2. Emplacements candidats où referentiel/2026/parametres.yaml existe
+    candidats = [
+        Path.cwd(),                                # Streamlit Cloud s'exécute depuis la racine du repo
+        Path(__file__).resolve().parents[2],       # En dev local depuis src/optifisc/composition.py
+        Path(__file__).resolve().parents[3],
+        Path("/mount/src/of"),                     # Streamlit Cloud (casse minuscule)
+        Path("/mount/src/OF"),                     # Streamlit Cloud (casse majuscule)
+    ]
+    mount_src = Path("/mount/src")
+    if mount_src.is_dir():
+        try:
+            for sous_dossier in mount_src.iterdir():
+                if sous_dossier.is_dir():
+                    candidats.append(sous_dossier)
+        except OSError:
+            pass
+
+    for candidat in candidats:
+        if (candidat / "referentiel" / "2026" / "parametres.yaml").is_file():
+            return candidat
+
+    return Path.cwd()
+
+
+def _racine_referentiel() -> Path:
+    """Résout le dossier du référentiel fiscal."""
+    env = os.environ.get("OPTIFISC_REFERENTIEL")
     if env:
         p = Path(env)
-        if p.is_dir():
+        if (p / "2026" / "parametres.yaml").is_file():
             return p
-    # 2. Streamlit Cloud
-    p = Path("/mount/src/of")
-    if p.is_dir() and (p / "referentiel").is_dir():
-        return p
-    # 3. Local (installation du package via pip)
-    return Path(__file__).resolve().parents[2]
+        if (p / "referentiel" / "2026" / "parametres.yaml").is_file():
+            return p / "referentiel"
+
+    return _racine_projet() / "referentiel"
+
 
 RACINE_PROJET = _racine_projet()
 MILLESIME = 2026
-
-# Chemin du dossier referentiel : peut être forcé par OPTIFISC_REFERENTIEL (Streamlit Cloud)
-REFERENTIEL = Path(os.environ.get("OPTIFISC_REFERENTIEL")) if os.environ.get("OPTIFISC_REFERENTIEL") else RACINE_PROJET / "referentiel"
+REFERENTIEL = _racine_referentiel()
 
 
 @dataclass
