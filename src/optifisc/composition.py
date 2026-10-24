@@ -48,7 +48,28 @@ from optifisc.infrastructure.recherche_bm25 import RechercheBm25
 from optifisc.infrastructure.referentiel_yaml import ReferentielYaml
 from optifisc.infrastructure.securite import MotsDePassePbkdf2
 
-RACINE_PROJET = Path(__file__).resolve().parents[2]
+def _racine_projet() -> Path:
+    """Résolve le chemin racine du projet quel que soit l'environnement (local / Streamlit Cloud).
+
+    Ordre de préférence :
+    1. Variable d'environnement OPTIFISC_RACINE_PROJET (si elle pointe vers un dossier existant)
+    2. /mount/src/of (montage standard Streamlit Cloud)
+    3. Parents du fichier __file__ (développement local)
+    """
+    # 1. Variable d'environnement
+    env = os.environ.get("OPTIFISC_RACINE_PROJET")
+    if env:
+        p = Path(env)
+        if p.is_dir():
+            return p
+    # 2. Streamlit Cloud
+    p = Path("/mount/src/of")
+    if p.is_dir() and (p / "referentiel").is_dir():
+        return p
+    # 3. Local (installation du package via pip)
+    return Path(__file__).resolve().parents[2]
+
+RACINE_PROJET = _racine_projet()
 MILLESIME = 2026
 
 # Chemin du dossier referentiel : peut être forcé par OPTIFISC_REFERENTIEL (Streamlit Cloud)
